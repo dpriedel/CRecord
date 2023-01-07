@@ -22,6 +22,7 @@
 	//	Fields can be fixed or variable.
 	//	Variable Fields know how to find the end of their data.
 	
+template <typename T>
 class	CRecord;
 class   CVariableRecord;
 class   CQuotedRecord;
@@ -57,6 +58,38 @@ class CField
         // ====================  DATA MEMBERS  ======================================= 
 
 }; // ----------  end of template class CField  ---------- 
+
+// =====================================================================================
+//        Class:  CFixedField
+//  Description:  Interface class for fields
+//
+// =====================================================================================
+
+class CFixedField : public CField<CFixedField>
+{
+    public:
+        // ====================  LIFECYCLE     ======================================= 
+
+        CFixedField ();                             // constructor 
+		                                       //
+		// ====================  ACCESSORS     ======================================= 
+
+		// ====================  MUTATORS      ======================================= 
+
+		// ====================  OPERATORS     ======================================= 
+
+    protected:
+		// ====================  METHODS       ======================================= 
+
+        // ====================  DATA MEMBERS  ======================================= 
+
+    private:
+		// ====================  METHODS       ======================================= 
+
+        // ====================  DATA MEMBERS  ======================================= 
+
+}; // ----------  end of template class CField  ---------- 
+
 
 
 // //class	CField	:	public	Loki::SmallObject<DEFAULT_THREADING, 128, 8192>
