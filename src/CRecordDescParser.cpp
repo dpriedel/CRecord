@@ -34,6 +34,7 @@
 
 #include "antlr4-runtime.h"
 
+
 #include "CRecordDescParser.h"
 #include "utilities.h"
 
@@ -42,7 +43,9 @@
 
 using namespace antlr4;
 
-#include "CPP_Record_DescBaseVisitor.h"
+// #include "CPP_Record_DescBaseVisitor.h"
+#include "CRecordDescVisitor.h"
+
 
 std::optional<CRecord> CRecordDescParser::ParseRecordDescFile (const fs::path& record_desc_path)
 {
@@ -54,18 +57,23 @@ std::optional<CRecord> CRecordDescParser::ParseRecordDescFile (const fs::path& r
     CPP_Record_DescLexer lexer(&input);
     CommonTokenStream tokens(&lexer);
 
-    tokens.fill();
-    for (auto token : tokens.getTokens())
-    {
-        std::cout << token->toString() << std::endl;
-    }
+    // tokens.fill();
+    // for (auto token : tokens.getTokens())
+    // {
+    //     std::cout << token->toString() << std::endl;
+    // }
 
     CPP_Record_DescParser parser(&tokens);
-    tree::ParseTree* tree = parser.record_desc();
+    tree::ParseTree* parsed_tree = parser.record_desc();
 
-    std::cout << tree->toStringTree(&parser) << std::endl << std::endl;
+    // std::cout << tree->toStringTree(&parser) << std::endl << std::endl;
+    //
+    // CRecord_DescVisitor visitor;
+    // visitor.visit(tree);
 
-	return {};
+    CRecord_DescVisitor visitor;
+    visitor.visit(parsed_tree);
+	return {visitor.GetCRecord()};
 }		// -----  end of method CRecordDescParser::ParseRecordDescFile  ----- 
 
 

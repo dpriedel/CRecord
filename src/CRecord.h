@@ -111,7 +111,9 @@ private:
 using FixedRecord = RecordBase<CFixedRecord>;
 using VariableRecord = RecordBase<CVariableRecord>;
 
-using CRecord = std::variant<FixedRecord, VariableRecord>;
+// include monostate first so CRecord can be default constructed.
+
+using CRecord = std::variant<std::monostate, FixedRecord, VariableRecord>;
 
 
 
