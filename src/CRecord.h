@@ -37,10 +37,13 @@
 // #include <map>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <variant>
+#include <vector>
 
-#include "CFixedRecord.h"
-#include "CVariableRecord.h"
+#include "CField.h"
+// #include "CFixedRecord.h"
+// #include "CVariableRecord.h"
 
 	//	for error reporting
 	
@@ -76,45 +79,21 @@ class Long_Record	:	public	std::length_error
 // class	CUnionRecord;
 // 			
 
-// =====================================================================================
-//        Class:  RecordBase
-//  Description: 
-//
-// =====================================================================================
-template < class T >
-class RecordBase
-{
-public:
-    // ====================  LIFECYCLE     ======================================= 
+#include "CFixedRecord.h"
+#include "CVariableRecord.h"
 
-	// ====================  ACCESSORS     ======================================= 
-
-	// ====================  MUTATORS      ======================================= 
-
-	// ====================  OPERATORS     ======================================= 
-
-protected:
-	// ====================  METHODS       ======================================= 
-
-    // ====================  DATA MEMBERS  ======================================= 
-
-private:
-
-    RecordBase ();                             // constructor
-    friend T;
-	// ====================  METHODS       ======================================= 
-
-    // ====================  DATA MEMBERS  ======================================= 
-
-}; // ----------  end of template class RecordBase  ---------- 
-
-using FixedRecord = RecordBase<CFixedRecord>;
-using VariableRecord = RecordBase<CVariableRecord>;
 
 // include monostate first so CRecord can be default constructed.
 
-using CRecord = std::variant<std::monostate, FixedRecord, VariableRecord>;
+using CRecord = std::variant<std::monostate, CFixedRecord, CVariableRecord>;
 
+// use this to make accessing the above variant less opaque.
+
+enum RecordTypes
+{
+    e_FixedRecord = 1,
+    e_VariableRecord = 2
+};
 
 
 // class	CRecord

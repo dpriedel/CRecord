@@ -18,14 +18,17 @@
 #ifndef  _CFIELD_INC_
 #define  _CFIELD_INC_
 
+#include <string_view>
+#include <variant>
+
 	//	Fields represent the contents of a piece of a record.
 	//	Fields can be fixed or variable.
 	//	Variable Fields know how to find the end of their data.
 	
-template <typename T>
-class	CRecord;
-class   CVariableRecord;
-class   CQuotedRecord;
+// template <typename T>
+// class	CRecord;
+// class   CVariableRecord;
+// class   CQuotedRecord;
 
 
 // =====================================================================================
@@ -34,28 +37,32 @@ class   CQuotedRecord;
 //
 // =====================================================================================
 template < class T >
-class CField
+class BaseField
 {
-    public:
-        // ====================  LIFECYCLE     ======================================= 
+public:
+    // ====================  LIFECYCLE     ======================================= 
 
-		// ====================  ACCESSORS     ======================================= 
+	// ====================  ACCESSORS     ======================================= 
+	
+	const std::string_view& GetData() const { return field_data_; }
 
-		// ====================  MUTATORS      ======================================= 
+	// ====================  MUTATORS      ======================================= 
 
-		// ====================  OPERATORS     ======================================= 
+	// ====================  OPERATORS     ======================================= 
 
-    protected:
-		// ====================  METHODS       ======================================= 
+protected:
+	// ====================  METHODS       ======================================= 
 
-        // ====================  DATA MEMBERS  ======================================= 
+    // ====================  DATA MEMBERS  ======================================= 
 
-    private:
-        CField ();                             // constructor 
-        friend T;
-		// ====================  METHODS       ======================================= 
+private:
+    BaseField ();                             // constructor 
+    friend T;
+	// ====================  METHODS       ======================================= 
 
-        // ====================  DATA MEMBERS  ======================================= 
+    // ====================  DATA MEMBERS  ======================================= 
+
+    std::string_view field_data_;
 
 }; // ----------  end of template class CField  ---------- 
 
@@ -65,7 +72,7 @@ class CField
 //
 // =====================================================================================
 
-class CFixedField : public CField<CFixedField>
+class CFixedField : public BaseField<CFixedField>
 {
     public:
         // ====================  LIFECYCLE     ======================================= 
@@ -91,6 +98,7 @@ class CFixedField : public CField<CFixedField>
 }; // ----------  end of template class CField  ---------- 
 
 
+using CField = std::variant<std::monostate, CFixedField>;
 
 // //class	CField	:	public	Loki::SmallObject<DEFAULT_THREADING, 128, 8192>
 // class	CField
