@@ -19,13 +19,14 @@
 #ifndef  _CVARIABLERECORD_INC_
 #define  _CVARIABLERECORD_INC_
 
+#include "RecordBase.h"
 
 // =====================================================================================
 //        Class:  CVariableRecord
 //  Description: 
 //
 // =====================================================================================
-class CVariableRecord
+class CVariableRecord : public RecordBase<CVariableRecord>
 {
 public:
 	// ====================  LIFECYCLE     ======================================= 
