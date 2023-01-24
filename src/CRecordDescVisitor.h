@@ -3,7 +3,7 @@
 //       Filename:  CRecordDescVisitor.h
 //
 //    Description:  Custom visitor class to generate CRecord based on 
-//		    data from parsing record Description file.
+//		            data from parsing record Description file.
 //
 //        Version:  1.0
 //        Created:  01/20/2023 04:40:08 PM
@@ -39,6 +39,9 @@ public:
     // ====================  MUTATORS      ======================================= 
 
   std::any visitFixed_header(CPP_Record_DescParser::Fixed_headerContext *ctx) override;
+  std::any visitLength_data_type(CPP_Record_DescParser::Length_data_typeContext *ctx) override;
+  std::any visitField_entry(CPP_Record_DescParser::Field_entryContext *ctx) override;
+
 
     // ====================  OPERATORS     ======================================= 
 
