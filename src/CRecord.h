@@ -42,8 +42,9 @@
 #include <vector>
 
 #include "CField.h"
-// #include "CFixedRecord.h"
-// #include "CVariableRecord.h"
+
+#include "CFixedRecord.h"
+#include "CVariableRecord.h"
 
 	//	for error reporting
 	
@@ -60,40 +61,12 @@ class Long_Record	:	public	std::length_error
 		explicit Long_Record(const std::string& what_arg) : length_error{what_arg} {}
 };
 
-
-// 	//	more specializations of stl_hash_fun.h
-//
-// namespace __gnu_cxx
-// {
-// 	template<> struct hash<CField::FieldName>
-// 	{
-// 	  size_t operator()(const CField::FieldName& s) const { return __stl_hash_string(s.c_str()); }
-// 	};
-// 	
-// 	template<> struct hash<const CField::FieldName>
-// 	{
-// 	  size_t operator()(const CField::FieldName& s) const { return __stl_hash_string(s.c_str()); }
-// 	};
-// };
-//
 // class	CUnionRecord;
 // 			
-
-#include "CFixedRecord.h"
-#include "CVariableRecord.h"
-
 
 // include monostate first so CRecord can be default constructed.
 
 using CRecord = std::variant<std::monostate, CFixedRecord, CVariableRecord>;
-
-// use this to make accessing the above variant less opaque.
-
-enum RecordTypes
-{
-    e_FixedRecord = 1,
-    e_VariableRecord = 2
-};
 
 
 // class	CRecord

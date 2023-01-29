@@ -47,6 +47,10 @@ std::any CRecord_DescVisitor::visitFixed_header(CPP_Record_DescParser::Fixed_hea
         auto& the_record = std::get<RecordTypes::e_FixedRecord>(record_);
         the_record.SetBufferSize(buf_len);
     }
+    else
+    {
+        throw std::invalid_argument{fmt::format("Invalid buffer length: {}", buffer_len)};
+    }
     return result;
 }
 
@@ -56,15 +60,15 @@ std::any CRecord_DescVisitor::visitLength_data_type (CPP_Record_DescParser::Leng
 
     if (ctx->STARTEND())
     {
-        the_record.SetPositionType(CFixedRecord::FixedRecordMode::e_Start_End);
+        the_record.SetPositionType(CFixedField::PositionMode::e_Start_End);
     }
     else if (ctx->STARTLEN())
     {
-        the_record.SetPositionType(CFixedRecord::FixedRecordMode::e_Start_Len);
+        the_record.SetPositionType(CFixedField::PositionMode::e_Start_Len);
     }
     else if (ctx->LENONLY())
     {
-        the_record.SetPositionType(CFixedRecord::FixedRecordMode::e_Len);
+        the_record.SetPositionType(CFixedField::PositionMode::e_Len);
     }
     else
     {
@@ -77,18 +81,58 @@ std::any CRecord_DescVisitor::visitLength_data_type (CPP_Record_DescParser::Leng
 
 std::any CRecord_DescVisitor::visitField_entry (CPP_Record_DescParser::Field_entryContext *ctx)
 {
-	auto xxx = ctx->a->getText();
-    fmt::print("a: {}\n", xxx);
+    // we will get here once for each field so this is where we build
+    // our field list.
 
-    auto& the_record = std::get<RecordTypes::e_FixedRecord>(record_);
+    std::any result = visitChildren(ctx);
 
-    auto position_type = the_record.GetRecordMode();
-    if (position_type != CFixedRecord::FixedRecordMode::e_Len)
+    FieldData new_field;
+
+    auto fld_name = ctx->FIELD_NAME()->getText();
+
+	// we could have a start/end, start/len or len only value
+	// we already know which to expect from information obtained earlier
+	// in the parse.
+	
+	auto start_or_len_only = ctx->a->getText();
+    int len_a;
+    int len_b = 0;
+    auto [ptr, ec] { std::from_chars(start_or_len_only.data(), start_or_len_only.data() + start_or_len_only.size(), len_a) };
+    if (ec != std::errc())
     {
-        auto yyy = ctx->b->getText();
-        fmt::print("b: {}\n", yyy);
+        throw std::invalid_argument{fmt::format("Invalid buffer length: {}", start_or_len_only)};
     }
-    auto result = visitChildren(ctx);
+    // fmt::print("a: {}\n", start_or_len);
+
+    // we will get here for multiple record types so we may need to do 
+    // type-specific logic 
+
+    if (auto which_variant = record_.index(); which_variant == RecordTypes::e_FixedRecord)
+    {
+        auto& the_record = std::get<RecordTypes::e_FixedRecord>(record_);
+
+        auto position_mode = the_record.GetPositionMode();
+        if (position_mode != CFixedField::PositionMode::e_Len)
+        {
+            auto end_or_len = ctx->b->getText();
+            auto [ptr, ec] { std::from_chars(end_or_len.data(), end_or_len.data() + end_or_len.size(), len_b) };
+            if (ec != std::errc())
+            {
+                throw std::invalid_argument{fmt::format("Invalid buffer length: {}", end_or_len)};
+            }
+            // fmt::print("b: {}\n", end_or_len);
+        }
+
+        // put it all together
+
+        new_field.field_name_ = fld_name;
+        new_field.field_ = CFixedField(position_mode, len_a, len_b);
+
+        the_record.AddField(new_field);
+
+    }
+
 	return result;
+
 }		// -----  end of method CRecord_DescVisitor::visitField_entry  ----- 
 

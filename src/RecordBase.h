@@ -25,6 +25,17 @@
 #include <vector>
 
 #include "CField.h"
+
+
+// use this to make accessing the CRecord variant less opaque.
+
+enum RecordTypes
+{
+    e_Unknown = 0,
+    e_FixedRecord = 1,
+    e_VariableRecord = 2
+};
+
 // =====================================================================================
 //        Class:  RecordBase
 //  Description: 
@@ -34,8 +45,6 @@ template < class T >
 class RecordBase
 {
 public:
-
-    using FieldList = std::vector<std::pair<std::string, CField>>;
 
     // ====================  LIFECYCLE     ======================================= 
 
@@ -47,6 +56,7 @@ public:
 	// ====================  MUTATORS      ======================================= 
 
     void SetBufferSize(size_t buf_size) { buffer_size_ = buf_size; }
+    void AddField(const FieldData& new_field) { fields_.push_back(new_field); }
 
 	// ====================  OPERATORS     ======================================= 
 	
@@ -59,7 +69,8 @@ protected:
 
 private:
 
-    RecordBase () = default;                             // constructor
+    RecordBase () = default;
+
     friend T;
 	// ====================  METHODS       ======================================= 
 
@@ -72,7 +83,6 @@ private:
 
     size_t buffer_size_ = 0;
     size_t virtual_fields_buffer_size_ = 0;
-
 }; // ----------  end of template class RecordBase  ---------- 
 
 #endif   // ----- #ifndef _BASERECORD_INC_  ----- 

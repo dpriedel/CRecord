@@ -2,7 +2,10 @@
 //
 //       Filename:  CField.h
 //
-//    Description:  
+//    Description:  Fields represent the contents of a piece of a record.
+//              	Fields can be fixed or variable or virtual.
+//	                Their main function is to construct a string_view which
+//	                provides access to their data.
 //
 //        Version:  1.0
 //        Created:  12/30/2022 02:31:16 PM
@@ -18,19 +21,14 @@
 #ifndef  _CFIELD_INC_
 #define  _CFIELD_INC_
 
+#include <string>
 #include <string_view>
 #include <variant>
+#include <vector>
 
-	//	Fields represent the contents of a piece of a record.
-	//	Fields can be fixed or variable.
-	//	Variable Fields know how to find the end of their data.
+#include <fmt/format.h>
+
 	
-// template <typename T>
-// class	CRecord;
-// class   CVariableRecord;
-// class   CQuotedRecord;
-
-
 // =====================================================================================
 //        Class:  CField
 //  Description:  Interface class for fields
@@ -40,12 +38,19 @@ template < class T >
 class BaseField
 {
 public:
+    // use this to make accessing the above variant less opaque.
+
+    enum FieldTypes
+    {
+        e_FixedField = 1,
+        e_VariableField = 2,
+        e_VirtualField = 3
+    };
+
     // ====================  LIFECYCLE     ======================================= 
 
 	// ====================  ACCESSORS     ======================================= 
 	
-	const std::string_view& GetData() const { return field_data_; }
-
 	// ====================  MUTATORS      ======================================= 
 
 	// ====================  OPERATORS     ======================================= 
@@ -56,13 +61,14 @@ protected:
     // ====================  DATA MEMBERS  ======================================= 
 
 private:
-    BaseField ();                             // constructor 
+    BaseField () { };                             // constructor 
     friend T;
 	// ====================  METHODS       ======================================= 
 
     // ====================  DATA MEMBERS  ======================================= 
 
-    std::string_view field_data_;
+    size_t offset_ = 0;
+    size_t length_ = 0;
 
 }; // ----------  end of template class CField  ---------- 
 
@@ -74,31 +80,98 @@ private:
 
 class CFixedField : public BaseField<CFixedField>
 {
-    public:
-        // ====================  LIFECYCLE     ======================================= 
+public:
+	enum class PositionMode
+	{
+		e_Start_Len		=	12,
+		e_Start_End,
+		e_Len,
+		e_Unknown
+	};
 
-        CFixedField ();                             // constructor 
-		                                       //
-		// ====================  ACCESSORS     ======================================= 
+    // ====================  LIFECYCLE     ======================================= 
 
-		// ====================  MUTATORS      ======================================= 
+    CFixedField() = default;
+    CFixedField (PositionMode position_mode, size_t a, size_t b = 0);                             // constructor 
+		                                   //
+	// ====================  ACCESSORS     ======================================= 
 
-		// ====================  OPERATORS     ======================================= 
+	// ====================  MUTATORS      ======================================= 
 
-    protected:
-		// ====================  METHODS       ======================================= 
+    std::string_view UseData(std::string_view record_data);
 
-        // ====================  DATA MEMBERS  ======================================= 
+	// ====================  OPERATORS     ======================================= 
 
-    private:
-		// ====================  METHODS       ======================================= 
+protected:
+	// ====================  METHODS       ======================================= 
 
-        // ====================  DATA MEMBERS  ======================================= 
+    // ====================  DATA MEMBERS  ======================================= 
+
+private:
+	// ====================  METHODS       ======================================= 
+
+    // ====================  DATA MEMBERS  ======================================= 
 
 }; // ----------  end of template class CField  ---------- 
 
 
-using CField = std::variant<std::monostate, CFixedField>;
+// =====================================================================================
+//        Class:  CVariableField
+//  Description:  Simple delimited fields -- NOT quoted
+//
+// =====================================================================================
+class CVariableField : public BaseField<CVariableField>
+{
+	public:
+		// ====================  LIFECYCLE     ======================================= 
+		CVariableField ();                             // constructor 
+
+		// ====================  ACCESSORS     ======================================= 
+
+		// ====================  MUTATORS      ======================================= 
+
+        std::string_view UseData(std::string_view record_data) { return {}; }
+
+		// ====================  OPERATORS     ======================================= 
+
+	protected:
+		// ====================  METHODS       ======================================= 
+
+		// ====================  DATA MEMBERS  ======================================= 
+
+	private:
+		// ====================  METHODS       ======================================= 
+
+		// ====================  DATA MEMBERS  ======================================= 
+
+}; // -----  end of class CVariableField  ----- 
+
+using CField = std::variant<std::monostate, CFixedField, CVariableField>;
+
+struct FieldData
+{
+    std::string field_name_;
+    CField field_;
+    std::string_view field_data_;
+};
+
+using FieldList = std::vector<FieldData>;
+
+// a custom formater for fields
+
+template <> struct fmt::formatter<FieldData>: formatter<std::string>
+{
+    // parse is inherited from formatter<string>.
+    auto format(const FieldData& field_info, fmt::format_context& ctx)
+    {
+        std::string s;
+        fmt::format_to(std::back_inserter(s), "\tname: {}, length: {}, content: ->{}<-.",
+            field_info.field_name_, field_info.field_data_.size(), field_info.field_data_);
+
+        return formatter<std::string>::format(s, ctx);
+    }
+};
+
 
 // //class	CField	:	public	Loki::SmallObject<DEFAULT_THREADING, 128, 8192>
 // class	CField

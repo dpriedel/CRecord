@@ -67,9 +67,6 @@ std::optional<CRecord> CRecordDescParser::ParseRecordDescFile (const fs::path& r
     tree::ParseTree* parsed_tree = parser.record_desc();
 
     // std::cout << tree->toStringTree(&parser) << std::endl << std::endl;
-    //
-    // CRecord_DescVisitor visitor;
-    // visitor.visit(tree);
 
     CRecord_DescVisitor visitor;
     visitor.visit(parsed_tree);

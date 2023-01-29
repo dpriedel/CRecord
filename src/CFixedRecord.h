@@ -18,6 +18,10 @@
 #ifndef  _CFIXEDRECORD_INC_
 #define  _CFIXEDRECORD_INC_
 
+#include <string_view>
+
+#include <fmt/format.h>
+
 #include "RecordBase.h"
 
 // =====================================================================================
@@ -28,23 +32,17 @@
 class CFixedRecord : public RecordBase<CFixedRecord> 
 {
 public:
-	enum class FixedRecordMode
-	{
-		e_Start_Len		=	12,
-		e_Start_End,
-		e_Len,
-		e_Unknown
-	};
-
 	// ====================  LIFECYCLE     ======================================= 
-	CFixedRecord () = default;                             // constructor 
+	CFixedRecord () =default;
 
 	// ====================  ACCESSORS     ======================================= 
 
-    FixedRecordMode GetRecordMode() const { return field_position_type_; }
+    CFixedField::PositionMode GetPositionMode() const { return field_position_mode_; }
 	// ====================  MUTATORS      ======================================= 
 	
-	void SetPositionType(FixedRecordMode position_type) { field_position_type_ = position_type; }
+	void SetPositionType(CFixedField::PositionMode position_mode) { field_position_mode_ = position_mode; }
+
+    void UseData(std::string_view record_data);
 
 	// ====================  OPERATORS     ======================================= 
 
@@ -58,8 +56,25 @@ private:
 
 	// ====================  DATA MEMBERS  ======================================= 
 
-    FixedRecordMode field_position_type_ = FixedRecordMode::e_Unknown;
+    CFixedField::PositionMode field_position_mode_ = CFixedField::PositionMode::e_Unknown;
 
 }; // -----  end of class CFixedRecord  ----- 
+
+// a custom formater for fields
+
+template <> struct fmt::formatter<CFixedRecord>: formatter<std::string>
+{
+    // parse is inherited from formatter<string>.
+    auto format(const CFixedRecord& a_record, fmt::format_context& ctx)
+    {
+        std::string s;
+        fmt::format_to(std::back_inserter(s), "FixedRecord\n");
+        for (const auto& fld : a_record.GetFields())
+        {
+            fmt::format_to(std::back_inserter(s), "{}\n", fld);
+        }
+        return formatter<std::string>::format(s, ctx);
+    }
+};
 
 #endif   // ----- #ifndef _CFIXEDRECORD_INC_  ----- 
