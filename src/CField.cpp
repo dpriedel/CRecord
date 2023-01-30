@@ -46,7 +46,25 @@ CFixedField::CFixedField (PositionMode position_mode, size_t a, size_t b)
 
 std::string_view CFixedField::UseData (std::string_view record)
 {
-	return std::string_view{record.data() + offset_, length_};
+	// our default behavior is to remove leading and trailing blanks.
+	// this can result in an 'empty' field.
+	// TODO: this behaviour can be overridden with field modifiers.
+	
+    std::string_view updated_data{record.data() + offset_, length_};
+    auto pos = updated_data.find_first_not_of(' ');
+    if (pos == std::string_view::npos)
+    { // no non-blank characters in field so it is empty.
+        // make it so.
+
+        updated_data = {};
+    }
+    else
+    {
+        updated_data.remove_prefix(pos);
+        updated_data.remove_suffix(updated_data.size() - updated_data.find_last_not_of(' ') - 1);
+
+    }
+	return updated_data;
 }		// -----  end of method CFixedField::UseData  ----- 
 
 
