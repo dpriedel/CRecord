@@ -68,3 +68,25 @@ std::string_view CFixedField::UseData (std::string_view record)
 }		// -----  end of method CFixedField::UseData  ----- 
 
 
+//--------------------------------------------------------------------------------------
+//       Class:  CVirtualField
+//      Method:  CVirtualField
+// Description:  constructor
+//--------------------------------------------------------------------------------------
+CVirtualField::CVirtualField (NameOrNumber reference_type, const std::string& field_sep_char,
+        const std::vector<std::string>& field_names)
+    : field_reference_type_{reference_type}, field_sep_char_{field_sep_char},
+    real_field_names_{field_names}
+{
+    if (field_reference_type_ == NameOrNumber::e_UseNumbers)
+    {
+        throw std::runtime_error("COMBO fields using field numbers not implmented yet.");
+    }
+}  // -----  end of method CVirtualField::CVirtualField  (constructor)  ----- 
+
+std::string_view CVirtualField::UseData (std::string_view record_data, const std::vector<std::string_view>& fields_data)
+{
+	return {} ;
+}		// -----  end of method CVirtualField::UseData  ----- 
+
+

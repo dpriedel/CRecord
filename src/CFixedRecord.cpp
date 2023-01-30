@@ -32,6 +32,7 @@ void CFixedRecord::UseData (std::string_view record_data)
 	    field_data.field_data_ = std::visit(
                 overloaded {
                     [](std::monostate&) -> std::string_view { return {}; },
+                    [record_data](CVirtualField& a_field) -> std::string_view { return a_field.UseData(record_data, std::vector<std::string_view>{}); },
                     [record_data](auto& a_field) -> std::string_view { return a_field.UseData(record_data); }
                 }, field_data.field_);
 	}

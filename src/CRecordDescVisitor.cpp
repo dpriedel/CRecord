@@ -136,3 +136,49 @@ std::any CRecord_DescVisitor::visitField_entry (CPP_Record_DescParser::Field_ent
 
 }		// -----  end of method CRecord_DescVisitor::visitField_entry  ----- 
 
+std::any CRecord_DescVisitor::visitField_separator_char (CPP_Record_DescParser::Field_separator_charContext *ctx)
+{
+    std::any result = visitChildren(ctx);
+    if (!  ctx->isEmpty())
+    {
+        combo_fld_sep_char_ = ctx->getText();
+    }
+	return result;
+}		// -----  end of method CRecord_DescVisitor::visitField_separator_char  ----- 
+
+std::any CRecord_DescVisitor::visitList_field_name (CPP_Record_DescParser::List_field_nameContext *ctx)
+{
+    std::any result = visitChildren(ctx);
+	list_field_names_.push_back(ctx->FIELD_NAME()->getText());
+
+	return result;
+}		// -----  end of method CRecord_DescVisitor::visitList_field_name  ----- 
+
+std::any CRecord_DescVisitor::visitCombo_field(CPP_Record_DescParser::Combo_fieldContext *ctx)
+{
+    // collect the data necessary to contruct combo fields at runtime
+
+    std::any result = visitChildren(ctx);
+
+    auto fld_name = ctx->FIELD_NAME()->getText();
+
+    CVirtualField::NameOrNumber names_or_numbers;
+    if (ctx->NAME_WORD())
+    {
+        names_or_numbers = CVirtualField::NameOrNumber::e_UseNames;
+    }
+    else if (ctx->NUMBER_WORD())
+    {
+        names_or_numbers = CVirtualField::NameOrNumber::e_UseNumbers;
+    }
+
+    FieldData new_field;
+    new_field.field_name_ = fld_name;
+    new_field.field_ = CVirtualField{names_or_numbers, combo_fld_sep_char_, list_field_names_};
+
+    // the_record.AddField(new_field);
+
+
+	return result;
+}		// -----  end of method CRecord_DescVisitor::visitCombo_field  ----- 
+

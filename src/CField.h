@@ -122,31 +122,81 @@ private:
 // =====================================================================================
 class CVariableField : public BaseField<CVariableField>
 {
-	public:
-		// ====================  LIFECYCLE     ======================================= 
-		CVariableField ();                             // constructor 
+public:
+	// ====================  LIFECYCLE     ======================================= 
+	CVariableField ();                             // constructor 
 
-		// ====================  ACCESSORS     ======================================= 
+	// ====================  ACCESSORS     ======================================= 
 
-		// ====================  MUTATORS      ======================================= 
+	// ====================  MUTATORS      ======================================= 
 
-        std::string_view UseData(std::string_view record_data) { return {}; }
+    std::string_view UseData(std::string_view record_data) { return {}; }
 
-		// ====================  OPERATORS     ======================================= 
+	// ====================  OPERATORS     ======================================= 
 
-	protected:
-		// ====================  METHODS       ======================================= 
+protected:
+	// ====================  METHODS       ======================================= 
 
-		// ====================  DATA MEMBERS  ======================================= 
+	// ====================  DATA MEMBERS  ======================================= 
 
-	private:
-		// ====================  METHODS       ======================================= 
+private:
+	// ====================  METHODS       ======================================= 
 
-		// ====================  DATA MEMBERS  ======================================= 
+	// ====================  DATA MEMBERS  ======================================= 
 
 }; // -----  end of class CVariableField  ----- 
 
-using CField = std::variant<std::monostate, CFixedField, CVariableField>;
+// =====================================================================================
+//        Class:  CVirtualField
+//  Description:  Replaces COMBO and SYNTH fields
+//
+// =====================================================================================
+class CVirtualField
+{
+public:
+
+    enum class NameOrNumber
+    {
+        e_UseNames,
+        e_UseNumbers,
+        e_Unknown
+    };
+
+public:
+	// ====================  LIFECYCLE     ======================================= 
+	CVirtualField () = default;                             // constructor 
+	CVirtualField(NameOrNumber reference_type, const std::string& field_sep_char,
+	        const std::vector<std::string>& field_names);
+
+	// ====================  ACCESSORS     ======================================= 
+
+	// ====================  MUTATORS      ======================================= 
+
+    std::string_view UseData(std::string_view record_data, const std::vector<std::string_view>& fields_data);
+
+	// ====================  OPERATORS     ======================================= 
+
+protected:
+	// ====================  METHODS       ======================================= 
+
+	// ====================  DATA MEMBERS  ======================================= 
+
+private:
+	// ====================  METHODS       ======================================= 
+
+	// ====================  DATA MEMBERS  ======================================= 
+
+    std::string field_data_;
+    std::string content_layout_;
+    std::vector<std::string> real_field_names_;
+    std::vector<int> real_field_numbers_;
+
+    NameOrNumber field_reference_type_ = NameOrNumber::e_Unknown;
+    std::string field_sep_char_;
+
+}; // -----  end of class CVirtualField  ----- 
+
+using CField = std::variant<std::monostate, CFixedField, CVariableField, CVirtualField>;
 
 struct FieldData
 {

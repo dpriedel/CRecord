@@ -41,7 +41,9 @@ public:
   std::any visitFixed_header(CPP_Record_DescParser::Fixed_headerContext *ctx) override;
   std::any visitLength_data_type(CPP_Record_DescParser::Length_data_typeContext *ctx) override;
   std::any visitField_entry(CPP_Record_DescParser::Field_entryContext *ctx) override;
-
+  std::any visitCombo_field(CPP_Record_DescParser::Combo_fieldContext *ctx) override;
+  std::any visitField_separator_char(CPP_Record_DescParser::Field_separator_charContext *ctx) override;
+  std::any visitList_field_name(CPP_Record_DescParser::List_field_nameContext *ctx) override;
 
     // ====================  OPERATORS     ======================================= 
 
@@ -56,6 +58,8 @@ private:
     // ====================  DATA MEMBERS  ======================================= 
 
 	CRecord record_;
+    std::vector<std::string> list_field_names_;
+    std::string combo_fld_sep_char_;
 }; // -----  end of class CRecord_DescVisitor  ----- 
 
 
