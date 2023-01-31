@@ -17,9 +17,14 @@
 #include <charconv>
 
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 
 #include "CRecordDescVisitor.h"
 
+// // helper type for the visitor #4
+// template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+// // explicit deduction guide (not needed as of C++20)
+// template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 // --------------------------------------------------------------------------------------
 //       Class:  CRecord_DescVisitor
@@ -156,7 +161,10 @@ std::any CRecord_DescVisitor::visitList_field_name (CPP_Record_DescParser::List_
 
 std::any CRecord_DescVisitor::visitCombo_field(CPP_Record_DescParser::Combo_fieldContext *ctx)
 {
-    // collect the data necessary to contruct combo fields at runtime
+    // collect the data necessary to contruct combo fields at runtime.
+    // but first, clear out any previously collected data.
+
+    list_field_names_.clear();
 
     std::any result = visitChildren(ctx);
 
@@ -172,12 +180,20 @@ std::any CRecord_DescVisitor::visitCombo_field(CPP_Record_DescParser::Combo_fiel
         names_or_numbers = CVirtualField::NameOrNumber::e_UseNumbers;
     }
 
+    // field_separator_char and field_name_list are collected in
+    // their respective visitors.
+
     FieldData new_field;
     new_field.field_name_ = fld_name;
     new_field.field_ = CVirtualField{names_or_numbers, combo_fld_sep_char_, list_field_names_};
 
-    // the_record.AddField(new_field);
+    // we can get here for any record type so we'll just use a visitor
+    // to pass the data to our CRecord object.
 
+    std::visit(overloaded {
+            [&new_field](std::monostate&) { /* do nothing */},
+            [&new_field](auto& arg) { arg.AddField(new_field); }
+            }, record_);
 
 	return result;
 }		// -----  end of method CRecord_DescVisitor::visitCombo_field  ----- 

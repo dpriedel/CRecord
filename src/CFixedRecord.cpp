@@ -18,11 +18,6 @@
 
 #include "CFixedRecord.h"
 
-// helper type for the visitor
-template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-// explicit deduction guide (not needed as of C++20)
-template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
-
 void CFixedRecord::UseData (std::string_view record_data)
 {
     // fmt::print("input: {:30}\n", record_data);
@@ -32,11 +27,20 @@ void CFixedRecord::UseData (std::string_view record_data)
 	    field_data.field_data_ = std::visit(
                 overloaded {
                     [](std::monostate&) -> std::string_view { return {}; },
-                    [record_data](CVirtualField& a_field) -> std::string_view { return a_field.UseData(record_data, std::vector<std::string_view>{}); },
+                    [this, record_data](CVirtualField& a_field) -> std::string_view { return a_field.UseData(record_data, GetComboFieldData(a_field.GetFieldNames())); },
                     [record_data](auto& a_field) -> std::string_view { return a_field.UseData(record_data); }
                 }, field_data.field_);
 	}
 	return ;
 }		// -----  end of method CFixedRecord::UseData  ----- 
 
+std::vector<std::string_view> CFixedRecord::GetComboFieldData (const std::vector<std::string>& field_names) const
+{
+    std::vector<std::string_view> combo_field_data;
+    for (const auto& fld_name : field_names)
+    {
+       combo_field_data.push_back((*this)[fld_name]); 
+    }
+	return combo_field_data;
+}		// -----  end of method CFixedRecord::GetComboFieldNames  ----- 
 

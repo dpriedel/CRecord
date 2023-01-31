@@ -170,6 +170,8 @@ public:
 
 	// ====================  ACCESSORS     ======================================= 
 
+    const std::vector<std::string>& GetFieldNames() const { return real_field_names_; }
+
 	// ====================  MUTATORS      ======================================= 
 
     std::string_view UseData(std::string_view record_data, const std::vector<std::string_view>& fields_data);

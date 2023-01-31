@@ -24,8 +24,14 @@
 #include <variant>
 #include <vector>
 
+#include <range/v3/algorithm/find_if.hpp>
+
 #include "CField.h"
 
+// helper type for the visitor #4
+template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+// explicit deduction guide (not needed as of C++20)
+template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 // use this to make accessing the CRecord variant less opaque.
 
@@ -60,8 +66,15 @@ public:
 
 	// ====================  OPERATORS     ======================================= 
 	
-	const CField& operator[](std::string_view field_name) const;
-
+    std::string_view operator[](std::string_view field_name) const
+    {
+        auto pos = ranges::find_if(fields_, [field_name] (const auto& entry) { return entry.field_name_ == field_name; });
+        if (pos != fields_.end())
+        {
+            return pos->field_data_;
+        }
+        return {};
+    }
 protected:
 	// ====================  METHODS       ======================================= 
 

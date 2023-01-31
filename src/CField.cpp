@@ -16,6 +16,11 @@
 
 #include <stdexcept>
 
+#include <fmt/format.h>
+
+#include <range/v3/range/conversion.hpp>
+#include <range/v3/view/join.hpp>
+
 #include "CField.h"
 
 
@@ -86,7 +91,9 @@ CVirtualField::CVirtualField (NameOrNumber reference_type, const std::string& fi
 
 std::string_view CVirtualField::UseData (std::string_view record_data, const std::vector<std::string_view>& fields_data)
 {
-	return {} ;
+
+    field_data_ = ranges::views::join(fields_data, field_sep_char_) | ranges::to<std::string>();
+	return {field_data_} ;
 }		// -----  end of method CVirtualField::UseData  ----- 
 
 

@@ -54,6 +54,8 @@ protected:
 private:
 	// ====================  METHODS       ======================================= 
 
+    std::vector<std::string_view> GetComboFieldData(const std::vector<std::string>& field_names) const;
+
 	// ====================  DATA MEMBERS  ======================================= 
 
     CFixedField::PositionMode field_position_mode_ = CFixedField::PositionMode::e_Unknown;
