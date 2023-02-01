@@ -15,10 +15,14 @@
 // =====================================================================================
 
 #include <charconv>
+#include <iterator>
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 
+#include <range/v3/algorithm/find_if.hpp>
+
+#include "CField.h"
 #include "CRecordDescVisitor.h"
 
 // // helper type for the visitor #4
@@ -154,7 +158,31 @@ std::any CRecord_DescVisitor::visitField_separator_char (CPP_Record_DescParser::
 std::any CRecord_DescVisitor::visitList_field_name (CPP_Record_DescParser::List_field_nameContext *ctx)
 {
     std::any result = visitChildren(ctx);
-	list_field_names_.push_back(ctx->FIELD_NAME()->getText());
+    std::string fld_name = ctx->FIELD_NAME()->getText();
+
+    // let's edit fld_name here to be sure it has been defined
+    // earlier in the field list for this record type.
+    // that way we can avoid runtime checks and catch an 
+    // error in the RecordDesc file.
+
+    const FieldList& flds_list = std::visit(overloaded {
+            [](std::monostate&) { return FieldList{}; },
+            [](auto&& arg) { return arg.GetFields(); }
+            }, record_);
+
+    auto pos = ranges::find_if(flds_list, [&fld_name](const auto& e) { return e.field_name_ == fld_name; });
+    if (pos == flds_list.end())
+    {
+        throw std::invalid_argument(fmt::format("Virtual field element: {} was not previously defined.", fld_name));
+    }
+
+	// list_field_names_.push_back(fld_name);
+	
+	// let's translate the name to an index into the fields list so we can
+	// avoid searching by name when we are mapping record data to fields.
+
+    auto distance = std::distance(flds_list.begin(), pos);
+    list_field_numbers_.push_back(distance);
 
 	return result;
 }		// -----  end of method CRecord_DescVisitor::visitList_field_name  ----- 
@@ -164,7 +192,9 @@ std::any CRecord_DescVisitor::visitCombo_field(CPP_Record_DescParser::Combo_fiel
     // collect the data necessary to contruct combo fields at runtime.
     // but first, clear out any previously collected data.
 
-    list_field_names_.clear();
+    // list_field_names_.clear();
+    list_field_numbers_.clear();
+    combo_fld_sep_char_.clear();
 
     std::any result = visitChildren(ctx);
 
@@ -185,7 +215,7 @@ std::any CRecord_DescVisitor::visitCombo_field(CPP_Record_DescParser::Combo_fiel
 
     FieldData new_field;
     new_field.field_name_ = fld_name;
-    new_field.field_ = CVirtualField{names_or_numbers, combo_fld_sep_char_, list_field_names_};
+    new_field.field_ = CVirtualField{names_or_numbers, combo_fld_sep_char_, list_field_numbers_};
 
     // we can get here for any record type so we'll just use a visitor
     // to pass the data to our CRecord object.
@@ -197,4 +227,55 @@ std::any CRecord_DescVisitor::visitCombo_field(CPP_Record_DescParser::Combo_fiel
 
 	return result;
 }		// -----  end of method CRecord_DescVisitor::visitCombo_field  ----- 
+
+std::any CRecord_DescVisitor::visitSynth_field (CPP_Record_DescParser::Synth_fieldContext *ctx)
+{
+    // collect the data necessary to contruct synth fields at runtime.
+    // but first, clear out any previously collected data.
+
+    // NOTE: this is the same as combo fields (except field_separator_char is required)
+    // and the field name which can have leading '-'s
+    // and gets mapped to a Virtual field.
+
+    // list_field_names_.clear();
+    list_field_numbers_.clear();
+    combo_fld_sep_char_.clear();
+
+    std::any result = visitChildren(ctx);
+
+    auto fld_name = ctx->synth_field_name()->getText();
+
+    CVirtualField::NameOrNumber names_or_numbers;
+    if (ctx->NAME_WORD())
+    {
+        names_or_numbers = CVirtualField::NameOrNumber::e_UseNames;
+    }
+    else if (ctx->NUMBER_WORD())
+    {
+        names_or_numbers = CVirtualField::NameOrNumber::e_UseNumbers;
+    }
+
+    // field_separator_char and field_name_list are collected in
+    // their respective visitors.
+
+    if (combo_fld_sep_char_.empty())
+    {
+        throw std::invalid_argument(fmt::format("Synth field: {} must specify a 'field_separator_char.", fld_name));
+    }
+
+    FieldData new_field;
+    new_field.field_name_ = fld_name;
+    new_field.field_ = CVirtualField{names_or_numbers, combo_fld_sep_char_, list_field_numbers_};
+
+    // we can get here for any record type so we'll just use a visitor
+    // to pass the data to our CRecord object.
+
+    std::visit(overloaded {
+            [&new_field](std::monostate&) { /* do nothing */},
+            [&new_field](auto& arg) { arg.AddField(new_field); }
+            }, record_);
+
+	return result;
+
+}		// -----  end of method CRecord_DescVisitor::visitSynth_field  ----- 
 

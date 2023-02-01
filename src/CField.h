@@ -166,11 +166,12 @@ public:
 	// ====================  LIFECYCLE     ======================================= 
 	CVirtualField () = default;                             // constructor 
 	CVirtualField(NameOrNumber reference_type, const std::string& field_sep_char,
-	        const std::vector<std::string>& field_names);
+	        const std::vector<size_t>& field_numbers);
 
 	// ====================  ACCESSORS     ======================================= 
 
-    const std::vector<std::string>& GetFieldNames() const { return real_field_names_; }
+    // const std::vector<std::string>& GetFieldNames() const { return real_field_names_; }
+    const std::vector<size_t>& GetFieldNumbers() const { return real_field_numbers_; }
 
 	// ====================  MUTATORS      ======================================= 
 
@@ -190,8 +191,8 @@ private:
 
     std::string field_data_;
     std::string content_layout_;
-    std::vector<std::string> real_field_names_;
-    std::vector<int> real_field_numbers_;
+    // std::vector<std::string> real_field_names_;
+    std::vector<size_t> real_field_numbers_;
 
     NameOrNumber field_reference_type_ = NameOrNumber::e_Unknown;
     std::string field_sep_char_;

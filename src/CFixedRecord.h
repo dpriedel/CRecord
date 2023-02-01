@@ -54,7 +54,7 @@ protected:
 private:
 	// ====================  METHODS       ======================================= 
 
-    std::vector<std::string_view> GetComboFieldData(const std::vector<std::string>& field_names) const;
+    std::vector<std::string_view> GetVirtualFieldData(const std::vector<size_t>& field_numbers) const;
 
 	// ====================  DATA MEMBERS  ======================================= 
 

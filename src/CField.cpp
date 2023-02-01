@@ -79,9 +79,9 @@ std::string_view CFixedField::UseData (std::string_view record)
 // Description:  constructor
 //--------------------------------------------------------------------------------------
 CVirtualField::CVirtualField (NameOrNumber reference_type, const std::string& field_sep_char,
-        const std::vector<std::string>& field_names)
+        const std::vector<size_t>& field_numbers)
     : field_reference_type_{reference_type}, field_sep_char_{field_sep_char},
-    real_field_names_{field_names}
+    real_field_numbers_{field_numbers}
 {
     if (field_reference_type_ == NameOrNumber::e_UseNumbers)
     {
@@ -91,7 +91,6 @@ CVirtualField::CVirtualField (NameOrNumber reference_type, const std::string& fi
 
 std::string_view CVirtualField::UseData (std::string_view record_data, const std::vector<std::string_view>& fields_data)
 {
-
     field_data_ = ranges::views::join(fields_data, field_sep_char_) | ranges::to<std::string>();
 	return {field_data_} ;
 }		// -----  end of method CVirtualField::UseData  ----- 

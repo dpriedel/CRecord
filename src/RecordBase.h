@@ -73,8 +73,14 @@ public:
         {
             return pos->field_data_;
         }
-        return {};
+        throw std::invalid_argument(fmt::format("Unknown field name: {}", field_name));
     }
+
+    std::string_view operator[](size_t which) const
+    {
+        return fields_.at(which).field_data_;
+    }
+    
 protected:
 	// ====================  METHODS       ======================================= 
 
