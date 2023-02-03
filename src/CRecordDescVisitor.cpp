@@ -43,6 +43,7 @@ std::any CRecord_DescVisitor::visitFixed_header(CPP_Record_DescParser::Fixed_hea
 {
     // Since we got here, we know we are constructing a FixedRecord object.
 
+    record_type_ = RecordTypes::e_FixedRecord;
     record_ = CFixedRecord();
 
     auto result = visitChildren(ctx);
@@ -62,6 +63,49 @@ std::any CRecord_DescVisitor::visitFixed_header(CPP_Record_DescParser::Fixed_hea
     }
     return result;
 }
+
+std::any CRecord_DescVisitor::visitVariable_header (CPP_Record_DescParser::Variable_headerContext *ctx)
+{
+    record_type_ = RecordTypes::e_VariableRecord;
+    record_ = CVariableRecord{};
+
+    auto result = visitChildren(ctx);
+
+    std::get<RecordTypes::e_VariableRecord>(record_).SetFieldDeimChar(ctx->variable_record_delim()->getText()[0]);
+
+	auto fld_cnt = ctx->a->getText();
+    int fld_count;
+    auto [ptr, ec] { std::from_chars(fld_cnt.data(), fld_cnt.data() + fld_cnt.size(), fld_count) };
+    if (ec != std::errc())
+    {
+        throw std::invalid_argument{fmt::format("Invalid 'number of fields': {}", fld_cnt)};
+    }
+
+    std::get<RecordTypes::e_VariableRecord>(record_).SetNumberOfFiedls(fld_count);
+
+	return result;
+}		// -----  end of method CRecord_DescVisitor::visitVariable_header  ----- 
+
+std::any CRecord_DescVisitor::visitField_names_used (CPP_Record_DescParser::Field_names_usedContext *ctx)
+{
+    auto result = visitChildren(ctx);
+    if (record_type_ == RecordTypes::e_VariableRecord)
+    {
+        CVariableRecord::FiedlNamesUsed fld_names;
+        if (ctx->YES())
+        {
+            fld_names = CVariableRecord::FiedlNamesUsed::e_FieldNames_;
+        }
+        else
+        {
+            fld_names = CVariableRecord::FiedlNamesUsed::e_FieldNumbers_;
+        }
+        
+        std::get<RecordTypes::e_VariableRecord>(record_).SetUseFieldNames(fld_names);
+    }
+
+	return result;
+}		// -----  end of method CRecord_DescVisitor::visitField_names_used  ----- 
 
 std::any CRecord_DescVisitor::visitLength_data_type (CPP_Record_DescParser::Length_data_typeContext *ctx)
 {
@@ -116,7 +160,7 @@ std::any CRecord_DescVisitor::visitField_entry (CPP_Record_DescParser::Field_ent
     // we will get here for multiple record types so we may need to do 
     // type-specific logic 
 
-    if (auto which_variant = record_.index(); which_variant == RecordTypes::e_FixedRecord)
+    if (record_type_ == RecordTypes::e_FixedRecord)
     {
         auto& the_record = std::get<RecordTypes::e_FixedRecord>(record_);
 
@@ -155,7 +199,22 @@ std::any CRecord_DescVisitor::visitField_separator_char (CPP_Record_DescParser::
 	return result;
 }		// -----  end of method CRecord_DescVisitor::visitField_separator_char  ----- 
 
-std::any CRecord_DescVisitor::visitList_field_name (CPP_Record_DescParser::List_field_nameContext *ctx)
+std::any CRecord_DescVisitor::visitVariable_list_field_name (CPP_Record_DescParser::Variable_list_field_nameContext *ctx)
+{
+    std::any result = visitChildren(ctx);
+    std::string fld_name = ctx->FIELD_NAME()->getText();
+
+    if (record_type_ == RecordTypes::e_VariableRecord)
+    {
+        FieldData new_field;
+        new_field.field_name_ = fld_name;
+        new_field.field_ = CVirtualField{};
+        std::get<RecordTypes::e_VariableRecord>(record_).AddField(new_field);
+    }
+	return result;
+}		// -----  end of method CRecord_DescVisitor::visitVariable_list_field_name  ----- 
+
+std::any CRecord_DescVisitor::visitVirtual_list_field_name (CPP_Record_DescParser::Virtual_list_field_nameContext *ctx)
 {
     std::any result = visitChildren(ctx);
     std::string fld_name = ctx->FIELD_NAME()->getText();
@@ -185,7 +244,7 @@ std::any CRecord_DescVisitor::visitList_field_name (CPP_Record_DescParser::List_
     list_field_numbers_.push_back(distance);
 
 	return result;
-}		// -----  end of method CRecord_DescVisitor::visitList_field_name  ----- 
+}		// -----  end of method CRecord_DescVisitor::visitVirtual_list_field_name  ----- 
 
 std::any CRecord_DescVisitor::visitCombo_field(CPP_Record_DescParser::Combo_fieldContext *ctx)
 {

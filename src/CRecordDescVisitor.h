@@ -43,8 +43,14 @@ public:
   std::any visitField_entry(CPP_Record_DescParser::Field_entryContext *ctx) override;
   std::any visitCombo_field(CPP_Record_DescParser::Combo_fieldContext *ctx) override;
   std::any visitField_separator_char(CPP_Record_DescParser::Field_separator_charContext *ctx) override;
-  std::any visitList_field_name(CPP_Record_DescParser::List_field_nameContext *ctx) override;
+  std::any visitVirtual_list_field_name(CPP_Record_DescParser::Virtual_list_field_nameContext  *ctx) override;
   std::any visitSynth_field(CPP_Record_DescParser::Synth_fieldContext *ctx) override;
+
+  std::any visitVariable_header(CPP_Record_DescParser::Variable_headerContext *ctx) override;
+  std::any visitField_names_used(CPP_Record_DescParser::Field_names_usedContext *ctx) override;
+
+  std::any visitVariable_list_field_name(CPP_Record_DescParser::Variable_list_field_nameContext *ctx) override;
+
 
 
     // ====================  OPERATORS     ======================================= 
@@ -59,6 +65,7 @@ private:
 
     // ====================  DATA MEMBERS  ======================================= 
 
+    RecordTypes record_type_ = RecordTypes::e_Unknown;
 	CRecord record_;
     // std::vector<std::string> list_field_names_;
     std::vector<size_t> list_field_numbers_;

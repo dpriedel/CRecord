@@ -124,7 +124,7 @@ class CVariableField : public BaseField<CVariableField>
 {
 public:
 	// ====================  LIFECYCLE     ======================================= 
-	CVariableField ();                             // constructor 
+	CVariableField () = default;                             // constructor 
 
 	// ====================  ACCESSORS     ======================================= 
 

@@ -33,7 +33,7 @@ class CFixedRecord : public RecordBase<CFixedRecord>
 {
 public:
 	// ====================  LIFECYCLE     ======================================= 
-	CFixedRecord () =default;
+	// CFixedRecord () =default;
 
 	// ====================  ACCESSORS     ======================================= 
 
