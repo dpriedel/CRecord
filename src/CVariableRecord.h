@@ -34,6 +34,7 @@ public:
     {
         e_FieldNames_,
         e_FieldNumbers_,
+        e_UseHeader_,
         e_Unknown
     };
 
@@ -43,14 +44,21 @@ public:
 	// ====================  ACCESSORS     ======================================= 
 
     size_t GetFieldCount() const { return field_count_; }
+    FiedlNamesUsed GetFielNamesUsed () const { return use_field_names_; }
 
 	// ====================  MUTATORS      ======================================= 
 
     void SetFieldDeimChar (char delim) { field_delim_char_ = delim; }
-    void SetNumberOfFiedls (size_t fld_count) { field_count_ = fld_count; }
-    void SetUseFieldNames(FiedlNamesUsed use_fld_names) { use_fieldNames_ = use_fld_names; }
+    void SetUseFieldNames(FiedlNamesUsed use_fld_names) {
+        use_field_names_ = use_fld_names;
+        if (use_field_names_ == FiedlNamesUsed::e_UseHeader_)
+        {
+            look_for_header_ = true;
+        }
+    }
+    void SetNumberOfFields (size_t fld_count) { field_count_ = fld_count; }
 
-    void UseData(std::string_view record_data) {};
+    void UseData(std::string_view record_data);
 
 	// ====================  OPERATORS     ======================================= 
 
@@ -62,13 +70,34 @@ protected:
 private:
 	// ====================  METHODS       ======================================= 
 
+    void CollectFieldNamesFromHeader(std::vector<std::string_view> field_names);
+    std::vector<std::string_view> GetVirtualFieldData (const std::vector<size_t>& field_numbers) const;
+
 	// ====================  DATA MEMBERS  ======================================= 
 
-    FiedlNamesUsed use_fieldNames_ = FiedlNamesUsed::e_Unknown;
+    FiedlNamesUsed use_field_names_ = FiedlNamesUsed::e_Unknown;
 
     char field_delim_char_;
     size_t field_count_ = 0;
+    bool look_for_header_ = false;
 
 }; // -----  end of class CVariableRecord  ----- 
+
+// a custom formater for fields
+
+template <> struct fmt::formatter<CVariableRecord>: formatter<std::string>
+{
+    // parse is inherited from formatter<string>.
+    auto format(const CVariableRecord& a_record, fmt::format_context& ctx)
+    {
+        std::string s;
+        fmt::format_to(std::back_inserter(s), "VariableRecord\n");
+        for (const auto& fld : a_record.GetFields())
+        {
+            fmt::format_to(std::back_inserter(s), "{}\n", fld);
+        }
+        return formatter<std::string>::format(s, ctx);
+    }
+};
 
 #endif   // ----- #ifndef _CVARIABLERECORD_INC_  ----- 

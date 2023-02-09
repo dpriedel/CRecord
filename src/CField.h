@@ -130,7 +130,7 @@ public:
 
 	// ====================  MUTATORS      ======================================= 
 
-    std::string_view UseData(std::string_view record_data) { return {}; }
+    std::string_view UseData(std::string_view field_data);
 
 	// ====================  OPERATORS     ======================================= 
 

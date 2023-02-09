@@ -15,6 +15,7 @@
 // =====================================================================================
 
 #include <charconv>
+#include <cstddef>
 #include <iterator>
 
 #include <fmt/format.h>
@@ -71,7 +72,20 @@ std::any CRecord_DescVisitor::visitVariable_header (CPP_Record_DescParser::Varia
 
     auto result = visitChildren(ctx);
 
-    std::get<RecordTypes::e_VariableRecord>(record_).SetFieldDeimChar(ctx->variable_record_delim()->getText()[0]);
+    auto& variable_rec = std::get<RecordTypes::e_VariableRecord>(record_);
+
+    auto variable_rec_fld_delim = ctx->variable_record_delim()->getText();
+    if (variable_rec_fld_delim == "Tab")
+    {
+        variable_rec.SetFieldDeimChar('\t');
+    }
+    else if (variable_rec_fld_delim == "Comma") {
+        variable_rec.SetFieldDeimChar(',');
+    }
+    else
+    {
+        variable_rec.SetFieldDeimChar(variable_rec_fld_delim[0]);
+    }
 
 	auto fld_cnt = ctx->a->getText();
     int fld_count;
@@ -81,8 +95,22 @@ std::any CRecord_DescVisitor::visitVariable_header (CPP_Record_DescParser::Varia
         throw std::invalid_argument{fmt::format("Invalid 'number of fields': {}", fld_cnt)};
     }
 
-    std::get<RecordTypes::e_VariableRecord>(record_).SetNumberOfFiedls(fld_count);
 
+    variable_rec.SetNumberOfFields(fld_count);
+
+    // if we are not using field names, then we need to construct our field list here so it 
+    // can be used by any Virtual fields which might be defined. 
+
+    if (variable_rec.GetFielNamesUsed() != CVariableRecord::FiedlNamesUsed::e_FieldNames_)
+    {
+        for (size_t indx = 0; indx < fld_count; ++indx)
+        {
+            FieldData new_field;
+            new_field.field_ = CVariableField();
+
+            variable_rec.AddField(new_field);
+        }
+    }
 	return result;
 }		// -----  end of method CRecord_DescVisitor::visitVariable_header  ----- 
 
@@ -96,9 +124,13 @@ std::any CRecord_DescVisitor::visitField_names_used (CPP_Record_DescParser::Fiel
         {
             fld_names = CVariableRecord::FiedlNamesUsed::e_FieldNames_;
         }
-        else
+        else if (ctx->NO())
         {
             fld_names = CVariableRecord::FiedlNamesUsed::e_FieldNumbers_;
+        }
+        else 
+        {
+            fld_names = CVariableRecord::FiedlNamesUsed::e_UseHeader_;
         }
         
         std::get<RecordTypes::e_VariableRecord>(record_).SetUseFieldNames(fld_names);
