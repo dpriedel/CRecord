@@ -98,10 +98,8 @@ private:
     FieldList fields_;
 
     std::string buffer_;
-    std::string virtual_fields_buffer;
 
     size_t buffer_size_ = 0;
-    size_t virtual_fields_buffer_size_ = 0;
 }; // ----------  end of template class RecordBase  ---------- 
 
 #endif   // ----- #ifndef _BASERECORD_INC_  ----- 
