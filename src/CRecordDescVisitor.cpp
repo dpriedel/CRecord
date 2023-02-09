@@ -141,6 +141,8 @@ std::any CRecord_DescVisitor::visitField_names_used (CPP_Record_DescParser::Fiel
 
 std::any CRecord_DescVisitor::visitLength_data_type (CPP_Record_DescParser::Length_data_typeContext *ctx)
 {
+    // currently, this field is only used with FixedRecord record types so the below line is safe.
+
     auto& the_record = std::get<RecordTypes::e_FixedRecord>(record_);
 
     if (ctx->STARTEND())
@@ -154,10 +156,6 @@ std::any CRecord_DescVisitor::visitLength_data_type (CPP_Record_DescParser::Leng
     else if (ctx->LENONLY())
     {
         the_record.SetPositionType(CFixedField::PositionMode::e_Len);
-    }
-    else
-    {
-        throw std::invalid_argument{fmt::format("Unexpected record length type: {}", ctx->getText())};
     }
     auto result = visitChildren(ctx);
 	return result;
