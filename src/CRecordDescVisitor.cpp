@@ -52,7 +52,7 @@ std::any CRecord_DescVisitor::visitFixed_header(CPP_Record_DescParser::Fixed_hea
     auto buffer_len = ctx->buffer_length()->getText();
     int buf_len;
  
-    auto [ptr, ec] { std::from_chars(buffer_len.data(), buffer_len.data() + buffer_len.size(), buf_len) };
+    auto [ptr, ec] = std::from_chars(buffer_len.data(), buffer_len.data() + buffer_len.size(), buf_len);
     if (ec == std::errc())
     {
         auto& the_record = std::get<RecordTypes::e_FixedRecord>(record_);
@@ -89,7 +89,7 @@ std::any CRecord_DescVisitor::visitVariable_header (CPP_Record_DescParser::Varia
 
 	auto fld_cnt = ctx->a->getText();
     int fld_count;
-    auto [ptr, ec] { std::from_chars(fld_cnt.data(), fld_cnt.data() + fld_cnt.size(), fld_count) };
+    auto [ptr, ec] = std::from_chars(fld_cnt.data(), fld_cnt.data() + fld_cnt.size(), fld_count);
     if (ec != std::errc())
     {
         throw std::invalid_argument{fmt::format("Invalid 'number of fields': {}", fld_cnt)};
@@ -161,8 +161,7 @@ std::any CRecord_DescVisitor::visitLength_data_type (CPP_Record_DescParser::Leng
 	return result;
 }		// -----  end of method CRecord_DescVisitor::VisitLength_data_type  ----- 
 
-
-std::any CRecord_DescVisitor::visitField_entry (CPP_Record_DescParser::Field_entryContext *ctx)
+std::any CRecord_DescVisitor::visitFixed_field_entry (CPP_Record_DescParser::Fixed_field_entryContext *ctx)
 {
     // we will get here once for each field so this is where we build
     // our field list.
@@ -180,7 +179,7 @@ std::any CRecord_DescVisitor::visitField_entry (CPP_Record_DescParser::Field_ent
 	auto start_or_len_only = ctx->a->getText();
     int len_a;
     int len_b = 0;
-    auto [ptr, ec] { std::from_chars(start_or_len_only.data(), start_or_len_only.data() + start_or_len_only.size(), len_a) };
+    auto [ptr, ec] = std::from_chars(start_or_len_only.data(), start_or_len_only.data() + start_or_len_only.size(), len_a);
     if (ec != std::errc())
     {
         throw std::invalid_argument{fmt::format("Invalid buffer length: {}", start_or_len_only)};
@@ -198,7 +197,7 @@ std::any CRecord_DescVisitor::visitField_entry (CPP_Record_DescParser::Field_ent
         if (position_mode != CFixedField::PositionMode::e_Len)
         {
             auto end_or_len = ctx->b->getText();
-            auto [ptr, ec] { std::from_chars(end_or_len.data(), end_or_len.data() + end_or_len.size(), len_b) };
+            auto [ptr, ec] = std::from_chars(end_or_len.data(), end_or_len.data() + end_or_len.size(), len_b);
             if (ec != std::errc())
             {
                 throw std::invalid_argument{fmt::format("Invalid buffer length: {}", end_or_len)};
@@ -323,7 +322,7 @@ std::any CRecord_DescVisitor::visitSynth_field (CPP_Record_DescParser::Synth_fie
     // but first, clear out any previously collected data.
 
     // NOTE: this is the same as combo fields (except field_separator_char is required)
-    // and the field name which can have leading '-'s
+    // and the field name which can have leading '_'s
     // and gets mapped to a Virtual field.
 
     // list_field_names_.clear();
@@ -368,3 +367,61 @@ std::any CRecord_DescVisitor::visitSynth_field (CPP_Record_DescParser::Synth_fie
 
 }		// -----  end of method CRecord_DescVisitor::visitSynth_field  ----- 
 
+std::any CRecord_DescVisitor::visitArray_field (CPP_Record_DescParser::Array_fieldContext *ctx)
+{
+    // collect the data necessary to contruct array fields at runtime.
+    // but first, clear out any previously collected data.
+
+    // list_field_names_.clear();
+    list_field_numbers_.clear();
+
+    std::any result = visitChildren(ctx);
+
+    auto fld_name = ctx->FIELD_NAME()->getText();
+    
+    auto fld_width = ctx->a->getText();
+    size_t field_width;
+    auto [ptr, ec] = std::from_chars(fld_width.data(), fld_width.data() + fld_width.size(), field_width);
+    if (ec != std::errc())
+    {
+        throw std::invalid_argument{fmt::format("Invalid 'field width': {}", fld_width)};
+    }
+
+    auto fld_count = ctx->b->getText();
+    size_t field_count;
+    auto [ptr2, ec2] = std::from_chars(fld_count.data(), fld_count.data() + fld_count.size(), field_count);
+    if (ec2 != std::errc())
+    {
+        throw std::invalid_argument{fmt::format("Invalid 'array field count': {}", fld_count)};
+    }
+
+    // if we are using a field name for the base field, it will be picked up and converted 
+    // to a field number during children processing.
+
+    if (ctx->NUMBER_WORD())
+    {
+        auto base_fld = ctx->d->getText();
+        int base_fld_nbr;
+        auto [ptr, ec] = std::from_chars(base_fld.data(), base_fld.data() + base_fld.size(), base_fld_nbr);
+        if (ec != std::errc())
+        {
+            throw std::invalid_argument{fmt::format("Invalid 'array base field number': {}", base_fld)};
+        }
+        list_field_numbers_.push_back(base_fld_nbr);
+    }
+
+    FieldData new_field;
+    new_field.field_name_ = fld_name;
+    new_field.field_ = CArrayField{field_count, field_width, list_field_numbers_};
+
+    // we can get here for any record type so we'll just use a visitor
+    // to pass the data to our CRecord object.
+
+    std::visit(overloaded {
+            [&new_field](std::monostate&) { /* do nothing */},
+            [&new_field](auto& arg) { arg.AddField(new_field); }
+            }, record_);
+
+	return result;
+
+}		// -----  end of method CRecord_DescVisitor::visitSynth_field  ----- 

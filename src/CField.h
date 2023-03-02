@@ -43,9 +43,20 @@ public:
     enum FieldTypes
     {
         e_FixedField = 1,
-        e_VariableField = 2,
-        e_VirtualField = 3
+        e_VariableField,
+        e_QuotedField,
+        e_VirtualField,
+        e_ArrayField
     };
+
+	enum Modifiers
+	{
+		e_TrimBoth,
+		e_TrimLeft,
+		e_TrimRight,
+		e_NoTrim,
+		e_Unknown
+	};
 
     // ====================  LIFECYCLE     ======================================= 
 
@@ -69,6 +80,7 @@ private:
 
     size_t offset_ = 0;
     size_t length_ = 0;
+    Modifiers field_modifier_ = Modifiers::e_Unknown;
 
 }; // ----------  end of template class CField  ---------- 
 
@@ -190,7 +202,6 @@ private:
 	// ====================  DATA MEMBERS  ======================================= 
 
     std::string field_data_;
-    std::string content_layout_;
     // std::vector<std::string> real_field_names_;
     std::vector<size_t> real_field_numbers_;
 
@@ -199,7 +210,52 @@ private:
 
 }; // -----  end of class CVirtualField  ----- 
 
-using CField = std::variant<std::monostate, CFixedField, CVariableField, CVirtualField>;
+
+
+// =====================================================================================
+//        Class:  CArrayField
+//  Description:  Field which maps a contiguous set of characters into an 'array' of 
+//                  fields.
+// =====================================================================================
+class CArrayField
+{
+public:
+
+	// ====================  LIFECYCLE     ======================================= 
+	//
+	CArrayField () = default;                             // constructor 
+	CArrayField (size_t field_width, size_t field_count, const std::vector<size_t>& field_numbers)
+	    : field_width_{field_width}, field_count_{field_count}, real_field_numbers_{field_numbers} { }
+
+	// ====================  ACCESSORS     ======================================= 
+
+	// ====================  MUTATORS      ======================================= 
+
+    std::string_view UseData(std::string_view record_data) { return {}; }
+
+	// ====================  OPERATORS     ======================================= 
+
+protected:
+	// ====================  METHODS       ======================================= 
+
+	// ====================  DATA MEMBERS  ======================================= 
+
+private:
+	// ====================  METHODS       ======================================= 
+
+	// ====================  DATA MEMBERS  ======================================= 
+
+    std::string field_data_;
+    // std::vector<std::string> real_field_names_;
+    std::vector<size_t> real_field_numbers_;
+
+    size_t field_width_ = 0;
+    size_t field_count_ = 0;
+
+}; // -----  end of class CArrayField  ----- 
+
+
+using CField = std::variant<std::monostate, CFixedField, CVariableField, CVirtualField, CArrayField>;
 
 struct FieldData
 {

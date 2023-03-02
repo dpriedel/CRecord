@@ -40,11 +40,12 @@ public:
 
   std::any visitFixed_header(CPP_Record_DescParser::Fixed_headerContext *ctx) override;
   std::any visitLength_data_type(CPP_Record_DescParser::Length_data_typeContext *ctx) override;
-  std::any visitField_entry(CPP_Record_DescParser::Field_entryContext *ctx) override;
+  std::any visitFixed_field_entry(CPP_Record_DescParser::Fixed_field_entryContext *ctx) override;
   std::any visitCombo_field(CPP_Record_DescParser::Combo_fieldContext *ctx) override;
   std::any visitField_separator_char(CPP_Record_DescParser::Field_separator_charContext *ctx) override;
   std::any visitVirtual_list_field_name(CPP_Record_DescParser::Virtual_list_field_nameContext  *ctx) override;
   std::any visitSynth_field(CPP_Record_DescParser::Synth_fieldContext *ctx) override;
+  std::any visitArray_field(CPP_Record_DescParser::Array_fieldContext *ctx) override;
 
   std::any visitVariable_header(CPP_Record_DescParser::Variable_headerContext *ctx) override;
   std::any visitField_names_used(CPP_Record_DescParser::Field_names_usedContext *ctx) override;
