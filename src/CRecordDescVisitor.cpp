@@ -95,7 +95,6 @@ std::any CRecord_DescVisitor::visitVariable_header (CPP_Record_DescParser::Varia
         throw std::invalid_argument{fmt::format("Invalid 'number of fields': {}", fld_cnt)};
     }
 
-
     variable_rec.SetNumberOfFields(fld_count);
 
     // if we are not using field names, then we need to construct our field list here so it 
@@ -103,10 +102,15 @@ std::any CRecord_DescVisitor::visitVariable_header (CPP_Record_DescParser::Varia
 
     if (variable_rec.GetFielNamesUsed() != CVariableRecord::FiedlNamesUsed::e_FieldNames_)
     {
+        // set our default modifier
+
+        field_modifier_ = FieldModifiers::e_TrimBoth;
+
         for (size_t indx = 0; indx < fld_count; ++indx)
         {
             FieldData new_field;
             new_field.field_ = CVariableField();
+            std::get<e_VariableField>(new_field.field_).SetModifier(field_modifier_);
 
             variable_rec.AddField(new_field);
         }
@@ -166,6 +170,10 @@ std::any CRecord_DescVisitor::visitFixed_field_entry (CPP_Record_DescParser::Fix
     // we will get here once for each field so this is where we build
     // our field list.
 
+    // set our default modifier
+
+    field_modifier_ = FieldModifiers::e_TrimBoth;
+
     std::any result = visitChildren(ctx);
 
     FieldData new_field;
@@ -209,13 +217,14 @@ std::any CRecord_DescVisitor::visitFixed_field_entry (CPP_Record_DescParser::Fix
 
         new_field.field_name_ = fld_name;
         new_field.field_ = CFixedField(position_mode, len_a, len_b);
-
+        std::get<e_FixedField>(new_field.field_).SetModifier(field_modifier_);
         the_record.AddField(new_field);
-
     }
-
+    else
+    {
+        throw std::runtime_error("Unimplemented use of 'fixed_field_entry'.");
+    }
 	return result;
-
 }		// -----  end of method CRecord_DescVisitor::visitField_entry  ----- 
 
 std::any CRecord_DescVisitor::visitField_separator_char (CPP_Record_DescParser::Field_separator_charContext *ctx)
@@ -230,18 +239,58 @@ std::any CRecord_DescVisitor::visitField_separator_char (CPP_Record_DescParser::
 
 std::any CRecord_DescVisitor::visitVariable_list_field_name (CPP_Record_DescParser::Variable_list_field_nameContext *ctx)
 {
+    // set our default modifier
+
+    field_modifier_ = FieldModifiers::e_TrimBoth;
+
     std::any result = visitChildren(ctx);
+
     std::string fld_name = ctx->FIELD_NAME()->getText();
 
     if (record_type_ == RecordTypes::e_VariableRecord)
     {
         FieldData new_field;
         new_field.field_name_ = fld_name;
-        new_field.field_ = CVirtualField{};
+        new_field.field_ = CVariableField();
+        std::get<e_VariableField>(new_field.field_).SetModifier(field_modifier_);
         std::get<RecordTypes::e_VariableRecord>(record_).AddField(new_field);
     }
 	return result;
 }		// -----  end of method CRecord_DescVisitor::visitVariable_list_field_name  ----- 
+
+std::any CRecord_DescVisitor::visitField_modifier (CPP_Record_DescParser::Field_modifierContext *ctx)
+{
+    std::any result = visitChildren(ctx);
+
+    if (ctx->TRIM_LEFT())
+    {
+        field_modifier_ = FieldModifiers::e_TrimLeft;
+    }
+    else if (ctx->TRIM_RIGHT())
+    {
+        field_modifier_ = FieldModifiers::e_TrimRight;
+    }
+    else if (ctx->TRIM_BOTH())
+    {
+        field_modifier_ = FieldModifiers::e_TrimBoth;
+    }
+    else if (ctx->NO_TRIM())
+    {
+        field_modifier_ = FieldModifiers::e_NoTrim;
+    }
+    else if (ctx->repeating_field()->REPEATING_FIELD())
+    {
+        //TODO: need to pick up repeat count and keep that somewhere
+
+        field_modifier_ = FieldModifiers::e_Repeating;
+    }
+    else
+    {
+        // default value 
+        field_modifier_ = FieldModifiers::e_TrimBoth;
+    }
+	return result;
+}		// -----  end of method CRecord_DescVisitor::visitField_modifier  ----- 
 
 std::any CRecord_DescVisitor::visitVirtual_list_field_name (CPP_Record_DescParser::Virtual_list_field_nameContext *ctx)
 {

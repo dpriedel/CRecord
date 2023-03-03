@@ -46,13 +46,10 @@ public:
   std::any visitVirtual_list_field_name(CPP_Record_DescParser::Virtual_list_field_nameContext  *ctx) override;
   std::any visitSynth_field(CPP_Record_DescParser::Synth_fieldContext *ctx) override;
   std::any visitArray_field(CPP_Record_DescParser::Array_fieldContext *ctx) override;
-
+  std::any visitField_modifier(CPP_Record_DescParser::Field_modifierContext *ctx) override;
   std::any visitVariable_header(CPP_Record_DescParser::Variable_headerContext *ctx) override;
   std::any visitField_names_used(CPP_Record_DescParser::Field_names_usedContext *ctx) override;
-
   std::any visitVariable_list_field_name(CPP_Record_DescParser::Variable_list_field_nameContext *ctx) override;
-
-
 
     // ====================  OPERATORS     ======================================= 
 
@@ -71,6 +68,8 @@ private:
     // std::vector<std::string> list_field_names_;
     std::vector<size_t> list_field_numbers_;
     std::string combo_fld_sep_char_;
+
+    FieldModifiers field_modifier_ = FieldModifiers::e_Unknown;
 }; // -----  end of class CRecord_DescVisitor  ----- 
 
 
