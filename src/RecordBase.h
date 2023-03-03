@@ -21,17 +21,13 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
-#include <variant>
 #include <vector>
+
+#include <fmt/format.h>
 
 #include <range/v3/algorithm/find_if.hpp>
 
 #include "CField.h"
-
-// helper type for the visitor #4
-template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-// explicit deduction guide (not needed as of C++20)
-template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 // use this to make accessing the CRecord variant less opaque.
 
