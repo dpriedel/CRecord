@@ -28,6 +28,29 @@
 
 #include <fmt/format.h>
 
+#include "utilities.h"
+
+// use this to make accessing the below variant less opaque.
+
+enum FieldTypes
+{
+    e_FixedField = 1,
+    e_VariableField,
+    e_QuotedField,
+    e_VirtualField,
+    e_ArrayField
+};
+
+enum class FieldModifiers
+{
+	e_TrimBoth,
+	e_TrimLeft,
+	e_TrimRight,
+	e_NoTrim,
+	e_Repeating,
+	e_Unknown
+};
+
 	
 // =====================================================================================
 //        Class:  CField
@@ -38,31 +61,15 @@ template < class T >
 class BaseField
 {
 public:
-    // use this to make accessing the above variant less opaque.
-
-    enum FieldTypes
-    {
-        e_FixedField = 1,
-        e_VariableField,
-        e_QuotedField,
-        e_VirtualField,
-        e_ArrayField
-    };
-
-	enum Modifiers
-	{
-		e_TrimBoth,
-		e_TrimLeft,
-		e_TrimRight,
-		e_NoTrim,
-		e_Unknown
-	};
-
     // ====================  LIFECYCLE     ======================================= 
 
 	// ====================  ACCESSORS     ======================================= 
 	
+	FieldModifiers GetModifier() const { return field_modifier_; }
+
 	// ====================  MUTATORS      ======================================= 
+	
+	void SetModifier (FieldModifiers modifier) { field_modifier_ = modifier; }
 
 	// ====================  OPERATORS     ======================================= 
 
@@ -80,7 +87,7 @@ private:
 
     size_t offset_ = 0;
     size_t length_ = 0;
-    Modifiers field_modifier_ = Modifiers::e_Unknown;
+    FieldModifiers field_modifier_ = FieldModifiers::e_Unknown;
 
 }; // ----------  end of template class CField  ---------- 
 
@@ -163,7 +170,7 @@ private:
 //  Description:  Replaces COMBO and SYNTH fields
 //
 // =====================================================================================
-class CVirtualField
+class CVirtualField : public BaseField<CVirtualField>
 {
 public:
 
@@ -217,7 +224,7 @@ private:
 //  Description:  Field which maps a contiguous set of characters into an 'array' of 
 //                  fields.
 // =====================================================================================
-class CArrayField
+class CArrayField : public BaseField<CArrayField>
 {
 public:
 
@@ -266,7 +273,50 @@ struct FieldData
 
 using FieldList = std::vector<FieldData>;
 
-// a custom formater for fields
+inline FieldModifiers GetFieldModifier (const CField& fld)
+{
+    return std::visit(overloaded {
+            [](std::monostate) { return FieldModifiers::e_Unknown; },
+            [](const auto& arg) { return arg.GetModifier(); }
+            }, fld);
+};
+
+// a custom formater for Modifiers
+
+template <> struct fmt::formatter<FieldModifiers>: formatter<std::string>
+{
+    // parse is inherited from formatter<string>.
+    auto format(const FieldModifiers& modifier, fmt::format_context& ctx)
+    {
+        std::string mod;
+        switch(modifier)
+        {
+            using enum FieldModifiers;
+            case e_TrimLeft:
+                mod = "TL";
+                break;
+            case e_TrimRight:
+                mod = "TR";
+                break;
+            case e_TrimBoth:
+                mod = "TB";
+                break;
+            case e_NoTrim:
+                mod = "NT";
+                break;
+            case e_Repeating:
+                mod = "RP";
+                break;
+            case e_Unknown:
+                mod = "Unknown";
+                break;
+        };
+        std::string s;
+        fmt::format_to(std::back_inserter(s), "{}", mod);
+
+        return formatter<std::string>::format(s, ctx);
+    }
+};
 
 template <> struct fmt::formatter<FieldData>: formatter<std::string>
 {
@@ -274,8 +324,8 @@ template <> struct fmt::formatter<FieldData>: formatter<std::string>
     auto format(const FieldData& field_info, fmt::format_context& ctx)
     {
         std::string s;
-        fmt::format_to(std::back_inserter(s), "\tname: {}, length: {}, content: ->{}<-.",
-            field_info.field_name_, field_info.field_data_.size(), field_info.field_data_);
+        fmt::format_to(std::back_inserter(s), "\tname: {}, mod: {} length: {}, content: ->{}<-.",
+            field_info.field_name_, GetFieldModifier(field_info.field_), field_info.field_data_.size(), field_info.field_data_);
 
         return formatter<std::string>::format(s, ctx);
     }
