@@ -56,18 +56,33 @@ std::string_view CFixedField::UseData (std::string_view record)
 	// TODO: this behaviour can be overridden with field modifiers.
 	
     std::string_view updated_data{record.data() + offset_, length_};
-    auto pos = updated_data.find_first_not_of(' ');
-    if (pos == std::string_view::npos)
-    { // no non-blank characters in field so it is empty.
-        // make it so.
-
-        updated_data = {};
-    }
-    else
+    if (field_modifier_ == FieldModifiers::e_TrimBoth || field_modifier_ == FieldModifiers::e_TrimLeft)
     {
-        updated_data.remove_prefix(pos);
-        updated_data.remove_suffix(updated_data.size() - updated_data.find_last_not_of(' ') - 1);
+        auto pos = updated_data.find_first_not_of(' ');
+        if (pos == std::string_view::npos)
+        { // no non-blank characters in field so it is empty.
+            // make it so.
 
+            updated_data = {};
+        }
+        else
+        {
+            updated_data.remove_prefix(pos);
+        }
+    }
+    if (field_modifier_ == FieldModifiers::e_TrimBoth || field_modifier_ == FieldModifiers::e_TrimRight)
+    {
+        auto pos = updated_data.find_last_not_of(' ');
+        if (pos == std::string_view::npos)
+        { // no non-blank characters in field so it is empty.
+            // make it so.
+
+            updated_data = {};
+        }
+        else
+        {
+            updated_data.remove_suffix(updated_data.size() - pos - 1);
+        }
     }
 	return updated_data;
 }		// -----  end of method CFixedField::UseData  ----- 
@@ -85,18 +100,33 @@ std::string_view CVariableField::UseData (std::string_view field_data)
 	// TODO: this behaviour can be overridden with field modifiers.
 	
     std::string_view updated_data{field_data};
-    auto pos = updated_data.find_first_not_of(' ');
-    if (pos == std::string_view::npos)
-    { // no non-blank characters in field so it is empty.
-        // make it so.
-
-        updated_data = {};
-    }
-    else
+    if (field_modifier_ == FieldModifiers::e_TrimBoth || field_modifier_ == FieldModifiers::e_TrimLeft)
     {
-        updated_data.remove_prefix(pos);
-        updated_data.remove_suffix(updated_data.size() - updated_data.find_last_not_of(' ') - 1);
+        auto pos = updated_data.find_first_not_of(' ');
+        if (pos == std::string_view::npos)
+        { // no non-blank characters in field so it is empty.
+            // make it so.
 
+            updated_data = {};
+        }
+        else
+        {
+            updated_data.remove_prefix(pos);
+        }
+    }
+    if (field_modifier_ == FieldModifiers::e_TrimBoth || field_modifier_ == FieldModifiers::e_TrimRight)
+    {
+        auto pos = updated_data.find_last_not_of(' ');
+        if (pos == std::string_view::npos)
+        { // no non-blank characters in field so it is empty.
+            // make it so.
+
+            updated_data = {};
+        }
+        else
+        {
+            updated_data.remove_suffix(updated_data.size() - pos - 1);
+        }
     }
 	return updated_data;
 }		// -----  end of method CVariableField::UseData  ----- 
