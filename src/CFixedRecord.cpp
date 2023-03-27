@@ -28,6 +28,7 @@ void CFixedRecord::UseData (std::string_view record_data)
                 overloaded {
                     [](std::monostate&) -> std::string_view { return {}; },
                     [this, record_data](CVirtualField& a_field) -> std::string_view { return a_field.UseData(record_data, GetVirtualFieldData(a_field.GetFieldNumbers())); },
+                    [this, record_data](CArrayField& a_field) -> std::string_view { return a_field.UseData(record_data, GetVirtualFieldData(a_field.GetFieldNumbers())); },
                     [record_data](auto& a_field) -> std::string_view { return a_field.UseData(record_data); }
                 }, field_data.field_);
 	}

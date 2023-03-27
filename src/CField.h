@@ -28,6 +28,9 @@
 
 #include <fmt/format.h>
 
+#include <range/v3/view/chunk.hpp>
+#include <range/v3/view/transform.hpp>
+
 #include "utilities.h"
 
 // use this to make accessing the below variant less opaque.
@@ -236,9 +239,15 @@ public:
 
 	// ====================  ACCESSORS     ======================================= 
 
+    const std::vector<size_t>& GetFieldNumbers() const { return real_field_numbers_; }
+
+    auto GetArray() const
+    {
+        return ranges::views::transform(field_data_ | ranges::views::chunk(field_width_), [] (const auto& fld) { return std::string_view{fld}; });
+    }
 	// ====================  MUTATORS      ======================================= 
 
-    std::string_view UseData(std::string_view record_data) { return {}; }
+    std::string_view UseData(std::string_view record_data, const std::vector<std::string_view>& fields_data);
 
 	// ====================  OPERATORS     ======================================= 
 
@@ -317,6 +326,20 @@ template <> struct fmt::formatter<FieldModifiers>: formatter<std::string>
         return formatter<std::string>::format(s, ctx);
     }
 };
+
+// TODO: finish this if it turns out to be needed
+//
+// template <> struct fmt::formatter<CArrayField>: formatter<std::string>
+// {
+//     // parse is inherited from formatter<string>.
+//     auto format(const CArrayField& fld, fmt::format_context& ctx)
+//     {
+//         std::string s;
+//         fmt::format_to(std::back_inserter(s), "\t{} ", "TBD");
+//
+//         return formatter<std::string>::format(s, ctx);
+//     }
+// };
 
 template <> struct fmt::formatter<FieldData>: formatter<std::string>
 {
