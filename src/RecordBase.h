@@ -55,6 +55,20 @@ public:
 	const FieldList& GetFields() const { return fields_; }
 	size_t GetBufferLen() const { return buffer_size_; }
 
+    const FieldData& GetFieldData(std::string_view field_name) const
+    {
+        auto pos = ranges::find_if(fields_, [field_name] (const auto& entry) { return entry.field_name_ == field_name; });
+        if (pos != fields_.end())
+        {
+            return *pos;
+        }
+        throw std::invalid_argument(fmt::format("Unknown field name: {}", field_name));
+    }
+    const FieldData& GetFieldData(size_t which) const
+    {
+        return fields_.at(which);
+    }
+
 	// ====================  MUTATORS      ======================================= 
 
     void SetBufferSize(size_t buf_size) { buffer_size_ = buf_size; }
