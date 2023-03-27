@@ -461,7 +461,7 @@ std::any CRecord_DescVisitor::visitArray_field (CPP_Record_DescParser::Array_fie
 
     FieldData new_field;
     new_field.field_name_ = fld_name;
-    new_field.field_ = CArrayField{field_count, field_width, list_field_numbers_};
+    new_field.field_ = CArrayField{field_width, field_count, list_field_numbers_};
 
     // we can get here for any record type so we'll just use a visitor
     // to pass the data to our CRecord object.
