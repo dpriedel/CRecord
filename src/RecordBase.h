@@ -85,7 +85,7 @@ public:
         auto [ptr, ec] = std::from_chars(fld_data.data(), fld_data.data() + fld_data.size(), base_fld_nbr);
         if (ec != std::errc())
         {
-            throw std::invalid_argument{fmt::format("Invalid 'array base field number': {}", fld_data)};
+            throw std::invalid_argument{fmt::format("Can't convert ->{}<- to a number.", fld_data)};
         }
         return base_fld_nbr;
     }
@@ -97,7 +97,7 @@ public:
         auto [ptr, ec] = std::from_chars(fld_data.data(), fld_data.data() + fld_data.size(), base_fld_nbr);
         if (ec != std::errc())
         {
-            throw std::invalid_argument{fmt::format("Invalid 'array base field number': {}", fld_data)};
+            throw std::invalid_argument{fmt::format("Can't convert ->{}<- to a number.", fld_data)};
         }
         return base_fld_nbr;
     }
