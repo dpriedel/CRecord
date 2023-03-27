@@ -20,6 +20,7 @@
 
 #include <range/v3/range/conversion.hpp>
 #include <range/v3/view/join.hpp>
+#include <range/v3/algorithm/find.hpp>
 
 #include "CField.h"
 
@@ -156,8 +157,6 @@ std::string_view CVirtualField::UseData (std::string_view record_data, const std
 
 //--------------------------------------------------------------------------------------
 //       Class:  CArrayField
-//      Method:  CArrayField
-// Description:  constructor
 //--------------------------------------------------------------------------------------
 
 std::string_view CArrayField::UseData (std::string_view record_data, const std::vector<std::string_view>& fields_data)
@@ -166,8 +165,14 @@ std::string_view CArrayField::UseData (std::string_view record_data, const std::
     // we need to right trim BUT must take into account the 'field' width of our array entries.	
 
     field_data_ = fields_data[0];
+
+    std::string empty_field(field_width_, ' ');
+    auto fields = field_data_ | ranges::views::chunk(field_width_) | ranges::views::transform([] (const auto& fld) { return std::string_view{fld}; });
+    const auto pos = ranges::find(fields, empty_field);
+	if (pos != fields.end())
+	{
+        field_data_.resize(ranges::distance(fields.begin(), pos) * field_width_);
+	}
 	return {field_data_} ;
 }		// -----  end of method CArrayField::UseData  ----- 
-
-
 
