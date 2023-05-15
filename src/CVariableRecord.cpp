@@ -30,10 +30,11 @@
     /* You should have received a copy of the GNU General Public License */
     /* along with Extractor_Markup.  If not, see <http://www.gnu.org/licenses/>. */
 
+#include <format>
+#include <string_view>
+
 #include "CVariableRecord.h"
 #include "utilities.h"
-#include <fmt/core.h>
-#include <string_view>
 
 void CVariableRecord::UseData (std::string_view record_data)
 {
@@ -44,7 +45,7 @@ void CVariableRecord::UseData (std::string_view record_data)
     // fmt::print("a record: {}\n", record_data);
 
     auto fields = split_string<std::string_view>(record_data, field_delim_char_);
-    BOOST_ASSERT_MSG(fields.size() == field_count_, fmt::format("Wrong number of fields in record. Found: {}. Expected: {}", fields.size(), field_count_).c_str());
+    BOOST_ASSERT_MSG(fields.size() == field_count_, std::format("Wrong number of fields in record. Found: {}. Expected: {}", fields.size(), field_count_).c_str());
 
     if (look_for_header_)
     {

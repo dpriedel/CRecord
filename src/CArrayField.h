@@ -33,10 +33,11 @@
 #ifndef  _CARRAYFIELD_INC_
 #define  _CARRAYFIELD_INC_
 
+#include <ranges>
 #include <vector>
 
-#include <range/v3/view/chunk.hpp>
-#include <range/v3/view/transform.hpp>
+// #include <range/v3/view/chunk.hpp>
+// #include <range/v3/view/transform.hpp>
 
 #include "FieldBase.h"
 
@@ -61,7 +62,10 @@ public:
 
     auto GetArray() const
     {
-        return ranges::views::transform(field_data_ | ranges::views::chunk(field_width_), [] (const auto& fld) { return std::string_view{fld}; });
+        // namespace rng = std::ranges;
+        namespace vws = std::ranges::views;
+
+        return vws::transform(field_data_ | vws::chunk(field_width_), [] (const auto& fld) { return std::string_view{fld}; });
     }
 	// ====================  MUTATORS      ======================================= 
 

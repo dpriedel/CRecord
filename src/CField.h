@@ -37,15 +37,16 @@
 #ifndef  _CFIELD_INC_
 #define  _CFIELD_INC_
 
+#include <format>
 #include <string>
 #include <string_view>
 #include <variant>
 #include <vector>
 
-#include <fmt/format.h>
-
-#include <range/v3/view/chunk.hpp>
-#include <range/v3/view/transform.hpp>
+// #include <fmt/format.h>
+//
+// #include <range/v3/view/chunk.hpp>
+// #include <range/v3/view/transform.hpp>
 
 #include "utilities.h"
 
@@ -75,10 +76,10 @@ inline FieldModifiers GetFieldModifier (const CField& fld)
 
 // a custom formater for Modifiers
 
-template <> struct fmt::formatter<FieldModifiers>: formatter<std::string>
+template <> struct std::formatter<FieldModifiers>: formatter<std::string>
 {
     // parse is inherited from formatter<string>.
-    auto format(const FieldModifiers& modifier, fmt::format_context& ctx)
+    auto format(const FieldModifiers& modifier, std::format_context& ctx) const
     {
         std::string mod;
         switch(modifier)
@@ -104,7 +105,7 @@ template <> struct fmt::formatter<FieldModifiers>: formatter<std::string>
                 break;
         };
         std::string s;
-        fmt::format_to(std::back_inserter(s), "{}", mod);
+        std::format_to(std::back_inserter(s), "{}", mod);
 
         return formatter<std::string>::format(s, ctx);
     }
@@ -112,25 +113,25 @@ template <> struct fmt::formatter<FieldModifiers>: formatter<std::string>
 
 // TODO: finish this if it turns out to be needed
 //
-// template <> struct fmt::formatter<CArrayField>: formatter<std::string>
+// template <> struct std::formatter<CArrayField>: formatter<std::string>
 // {
 //     // parse is inherited from formatter<string>.
-//     auto format(const CArrayField& fld, fmt::format_context& ctx)
+//     auto format(const CArrayField& fld, std::format_context& ctx)
 //     {
 //         std::string s;
-//         fmt::format_to(std::back_inserter(s), "\t{} ", "TBD");
+//         std::format_to(std::back_inserter(s), "\t{} ", "TBD");
 //
 //         return formatter<std::string>::format(s, ctx);
 //     }
 // };
 
-template <> struct fmt::formatter<FieldData>: formatter<std::string>
+template <> struct std::formatter<FieldData>: formatter<std::string>
 {
     // parse is inherited from formatter<string>.
-    auto format(const FieldData& field_info, fmt::format_context& ctx)
+    auto format(const FieldData& field_info, std::format_context& ctx) const
     {
         std::string s;
-        fmt::format_to(std::back_inserter(s), "\tname: {}, mod: {} length: {}, content: ->{}<-.",
+        std::format_to(std::back_inserter(s), "\tname: {}, mod: {} length: {}, content: ->{}<-.",
             field_info.field_name_, GetFieldModifier(field_info.field_), field_info.field_data_.size(), field_info.field_data_);
 
         return formatter<std::string>::format(s, ctx);

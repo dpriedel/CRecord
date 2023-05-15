@@ -30,13 +30,13 @@
     /* You should have received a copy of the GNU General Public License */
     /* along with Extractor_Markup.  If not, see <http://www.gnu.org/licenses/>. */
 
-#include <stdexcept>
+// #include <stdexcept>
 
-#include <fmt/format.h>
-
-#include <range/v3/range/conversion.hpp>
-#include <range/v3/view/join.hpp>
-#include <range/v3/algorithm/find.hpp>
+// #include <fmt/format.h>
+//
+// #include <range/v3/range/conversion.hpp>
+// #include <range/v3/view/join.hpp>
+// #include <range/v3/algorithm/find.hpp>
 
 #include "CField.h"
 

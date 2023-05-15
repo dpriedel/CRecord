@@ -30,14 +30,20 @@
     /* You should have received a copy of the GNU General Public License */
     /* along with Extractor_Markup.  If not, see <http://www.gnu.org/licenses/>. */
 
+#include <algorithm>
 #include <charconv>
 #include <cstddef>
 #include <iterator>
+#include <format>
+#include <ranges>
 
-#include <fmt/format.h>
-#include <fmt/ranges.h>
+namespace rng = std::ranges;
+namespace vws = std::ranges::views;
 
-#include <range/v3/algorithm/find_if.hpp>
+// #include <fmt/format.h>
+// #include <fmt/ranges.h>
+//
+// #include <range/v3/algorithm/find_if.hpp>
 
 #include "CField.h"
 #include "CRecordDescVisitor.h"
@@ -76,7 +82,7 @@ std::any CRecord_DescVisitor::visitFixed_header(CPP_Record_DescParser::Fixed_hea
     }
     else
     {
-        throw std::invalid_argument{fmt::format("Invalid buffer length: {}", buffer_len)};
+        throw std::invalid_argument{std::format("Invalid buffer length: {}", buffer_len)};
     }
     return result;
 }
@@ -108,7 +114,7 @@ std::any CRecord_DescVisitor::visitVariable_header (CPP_Record_DescParser::Varia
     auto [ptr, ec] = std::from_chars(fld_cnt.data(), fld_cnt.data() + fld_cnt.size(), fld_count);
     if (ec != std::errc())
     {
-        throw std::invalid_argument{fmt::format("Invalid 'number of fields': {}", fld_cnt)};
+        throw std::invalid_argument{std::format("Invalid 'number of fields': {}", fld_cnt)};
     }
 
     variable_rec.SetNumberOfFields(fld_count);
@@ -206,9 +212,9 @@ std::any CRecord_DescVisitor::visitFixed_field_entry (CPP_Record_DescParser::Fix
     auto [ptr, ec] = std::from_chars(start_or_len_only.data(), start_or_len_only.data() + start_or_len_only.size(), len_a);
     if (ec != std::errc())
     {
-        throw std::invalid_argument{fmt::format("Invalid buffer length: {}", start_or_len_only)};
+        throw std::invalid_argument{std::format("Invalid buffer length: {}", start_or_len_only)};
     }
-    // fmt::print("a: {}\n", start_or_len);
+    // std::print("a: {}\n", start_or_len);
 
     // we will get here for multiple record types so we may need to do 
     // type-specific logic 
@@ -224,9 +230,9 @@ std::any CRecord_DescVisitor::visitFixed_field_entry (CPP_Record_DescParser::Fix
             auto [ptr, ec] = std::from_chars(end_or_len.data(), end_or_len.data() + end_or_len.size(), len_b);
             if (ec != std::errc())
             {
-                throw std::invalid_argument{fmt::format("Invalid buffer length: {}", end_or_len)};
+                throw std::invalid_argument{std::format("Invalid buffer length: {}", end_or_len)};
             }
-            // fmt::print("b: {}\n", end_or_len);
+            // std::print("b: {}\n", end_or_len);
         }
 
         // put it all together
@@ -323,10 +329,10 @@ std::any CRecord_DescVisitor::visitVirtual_list_field_name (CPP_Record_DescParse
             [](auto&& arg) { return arg.GetFields(); }
             }, record_);
 
-    auto pos = ranges::find_if(flds_list, [&fld_name](const auto& e) { return e.field_name_ == fld_name; });
+    auto pos = rng::find_if(flds_list, [&fld_name](const auto& e) { return e.field_name_ == fld_name; });
     if (pos == flds_list.end())
     {
-        throw std::invalid_argument(fmt::format("Virtual field element: {} was not previously defined.", fld_name));
+        throw std::invalid_argument(std::format("Virtual field element: {} was not previously defined.", fld_name));
     }
 
 	// list_field_names_.push_back(fld_name);
@@ -413,7 +419,7 @@ std::any CRecord_DescVisitor::visitSynth_field (CPP_Record_DescParser::Synth_fie
 
     if (combo_fld_sep_char_.empty())
     {
-        throw std::invalid_argument(fmt::format("Synth field: {} must specify a 'field_separator_char.", fld_name));
+        throw std::invalid_argument(std::format("Synth field: {} must specify a 'field_separator_char.", fld_name));
     }
 
     FieldData new_field;
@@ -449,7 +455,7 @@ std::any CRecord_DescVisitor::visitArray_field (CPP_Record_DescParser::Array_fie
     auto [ptr, ec] = std::from_chars(fld_width.data(), fld_width.data() + fld_width.size(), field_width);
     if (ec != std::errc())
     {
-        throw std::invalid_argument{fmt::format("Invalid 'field width': {}", fld_width)};
+        throw std::invalid_argument{std::format("Invalid 'field width': {}", fld_width)};
     }
 
     auto fld_count = ctx->b->getText();
@@ -457,7 +463,7 @@ std::any CRecord_DescVisitor::visitArray_field (CPP_Record_DescParser::Array_fie
     auto [ptr2, ec2] = std::from_chars(fld_count.data(), fld_count.data() + fld_count.size(), field_count);
     if (ec2 != std::errc())
     {
-        throw std::invalid_argument{fmt::format("Invalid 'array field count': {}", fld_count)};
+        throw std::invalid_argument{std::format("Invalid 'array field count': {}", fld_count)};
     }
 
     // if we are using a field name for the base field, it will be picked up and converted 
@@ -470,7 +476,7 @@ std::any CRecord_DescVisitor::visitArray_field (CPP_Record_DescParser::Array_fie
         auto [ptr, ec] = std::from_chars(base_fld.data(), base_fld.data() + base_fld.size(), base_fld_nbr);
         if (ec != std::errc())
         {
-            throw std::invalid_argument{fmt::format("Invalid 'array base field number': {}", base_fld)};
+            throw std::invalid_argument{std::format("Invalid 'array base field number': {}", base_fld)};
         }
         list_field_numbers_.push_back(base_fld_nbr);
     }

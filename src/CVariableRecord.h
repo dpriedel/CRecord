@@ -85,16 +85,16 @@ private:
 
 // a custom formater for fields
 
-template <> struct fmt::formatter<CVariableRecord>: formatter<std::string>
+template <> struct std::formatter<CVariableRecord>: std::formatter<std::string>
 {
     // parse is inherited from formatter<string>.
-    auto format(const CVariableRecord& a_record, fmt::format_context& ctx)
+    auto format(const CVariableRecord& a_record, std::format_context& ctx) const
     {
         std::string s;
-        fmt::format_to(std::back_inserter(s), "VariableRecord\n");
+        std::format_to(std::back_inserter(s), "VariableRecord\n");
         for (const auto& fld : a_record.GetFields())
         {
-            fmt::format_to(std::back_inserter(s), "{}\n", fld);
+            std::format_to(std::back_inserter(s), "{}\n", fld);
         }
         return formatter<std::string>::format(s, ctx);
     }

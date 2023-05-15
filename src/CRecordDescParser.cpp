@@ -30,7 +30,9 @@
     /* You should have received a copy of the GNU General Public License */
     /* along with Extractor_Markup.  If not, see <http://www.gnu.org/licenses/>. */
 
-#include <fmt/format.h>
+#include <format>
+
+// #include <fmt/format.h>
 
 #include "antlr4-runtime.h"
 
@@ -49,7 +51,7 @@ using namespace antlr4;
 
 std::optional<CRecord> CRecordDescParser::ParseRecordDescFile (const fs::path& record_desc_path)
 {
-	BOOST_ASSERT_MSG(fs::exists(record_desc_path), fmt::format("Can't find record description file: {}", record_desc_path).c_str());
+	BOOST_ASSERT_MSG(fs::exists(record_desc_path), std::format("Can't find record description file: {}", record_desc_path).c_str());
 
     const std::string record_desc_data = LoadDataFileForUse(record_desc_path);
 
