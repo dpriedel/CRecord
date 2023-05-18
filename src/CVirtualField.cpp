@@ -28,9 +28,8 @@
     /* GNU General Public License for more details. */
 
     /* You should have received a copy of the GNU General Public License */
-    /* along with Extractor_Markup.  If not, see <http://www.gnu.org/licenses/>. */
+    /* along with ModernCRecord.  If not, see <http://www.gnu.org/licenses/>. */
 
-// #include <stdexcept>
 
 #include <ranges>
 
@@ -38,7 +37,6 @@ namespace rng = std::ranges;
 namespace vws = std::ranges::views;
 
 #include <range/v3/range/conversion.hpp>
-// #include <range/v3/view/join.hpp>
 
 #include "CVirtualField.h"
 

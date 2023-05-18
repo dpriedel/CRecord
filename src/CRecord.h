@@ -27,14 +27,12 @@
     /* GNU General Public License for more details. */
 
     /* You should have received a copy of the GNU General Public License */
-    /* along with Extractor_Markup.  If not, see <http://www.gnu.org/licenses/>. */
+    /* along with ModernCRecord.  If not, see <http://www.gnu.org/licenses/>. */
 
 
 #ifndef  _CRECORD_INC_
 #define  _CRECORD_INC_
 
-// #include <vector>
-// #include <map>
 #include <stdexcept>
 #include <string>
 #include <utility>

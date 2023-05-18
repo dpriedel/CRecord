@@ -27,7 +27,7 @@
     /* GNU General Public License for more details. */
 
     /* You should have received a copy of the GNU General Public License */
-    /* along with Extractor_Markup.  If not, see <http://www.gnu.org/licenses/>. */
+    /* along with ModernCRecord.  If not, see <http://www.gnu.org/licenses/>. */
 
 
 #ifndef  _CARRAYFIELD_INC_
@@ -35,9 +35,6 @@
 
 #include <ranges>
 #include <vector>
-
-// #include <range/v3/view/chunk.hpp>
-// #include <range/v3/view/transform.hpp>
 
 #include "FieldBase.h"
 

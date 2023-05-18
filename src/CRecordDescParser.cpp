@@ -28,25 +28,20 @@
     /* GNU General Public License for more details. */
 
     /* You should have received a copy of the GNU General Public License */
-    /* along with Extractor_Markup.  If not, see <http://www.gnu.org/licenses/>. */
+    /* along with ModernCRecord.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include <format>
 
-// #include <fmt/format.h>
-
 #include "antlr4-runtime.h"
 
-
 #include "CRecordDescParser.h"
-#include "utilities.h"
-
 #include "CPP_Record_DescLexer.h"
 #include "CPP_Record_DescParser.h"
+#include "CRecordDescVisitor.h"
+
+#include "utilities.h"
 
 using namespace antlr4;
-
-// #include "CPP_Record_DescBaseVisitor.h"
-#include "CRecordDescVisitor.h"
 
 
 std::optional<CRecord> CRecordDescParser::ParseRecordDescFile (const fs::path& record_desc_path)
