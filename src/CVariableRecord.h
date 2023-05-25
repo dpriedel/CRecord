@@ -32,9 +32,9 @@ public:
 
     enum class FiedlNamesUsed
     {
-        e_FieldNames_,
-        e_FieldNumbers_,
-        e_UseHeader_,
+        e_FieldNames,
+        e_FieldNumbers,
+        e_UseHeader,
         e_Unknown
     };
 
@@ -43,15 +43,15 @@ public:
 
 	// ====================  ACCESSORS     ======================================= 
 
-    size_t GetFieldCount() const { return field_count_; }
-    FiedlNamesUsed GetFielNamesUsed () const { return use_field_names_; }
+    [[nodiscard]] size_t GetFieldCount() const { return field_count_; }
+    [[nodiscard]] FiedlNamesUsed GetFielNamesUsed () const { return use_field_names_; }
 
 	// ====================  MUTATORS      ======================================= 
 
     void SetFieldDeimChar (char delim) { field_delim_char_ = delim; }
     void SetUseFieldNames(FiedlNamesUsed use_fld_names) {
         use_field_names_ = use_fld_names;
-        if (use_field_names_ == FiedlNamesUsed::e_UseHeader_)
+        if (use_field_names_ == FiedlNamesUsed::e_UseHeader)
         {
             look_for_header_ = true;
         }
@@ -71,13 +71,13 @@ private:
 	// ====================  METHODS       ======================================= 
 
     void CollectFieldNamesFromHeader(std::vector<std::string_view> field_names);
-    std::vector<std::string_view> GetVirtualFieldData (const std::vector<size_t>& field_numbers) const;
+    [[nodiscard]] std::vector<std::string_view> GetVirtualFieldData (const std::vector<size_t>& field_numbers) const;
 
 	// ====================  DATA MEMBERS  ======================================= 
 
     FiedlNamesUsed use_field_names_ = FiedlNamesUsed::e_Unknown;
 
-    char field_delim_char_;
+    char field_delim_char_ = {};
     size_t field_count_ = 0;
     bool look_for_header_ = false;
 

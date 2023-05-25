@@ -56,7 +56,6 @@ public:
         e_Unknown
     };
 
-public:
 	// ====================  LIFECYCLE     ======================================= 
 	CVirtualField () = default;                             // constructor 
 	CVirtualField(NameOrNumber reference_type, const std::string& field_sep_char,
@@ -65,7 +64,7 @@ public:
 	// ====================  ACCESSORS     ======================================= 
 
     // const std::vector<std::string>& GetFieldNames() const { return real_field_names_; }
-    const std::vector<size_t>& GetFieldNumbers() const { return real_field_numbers_; }
+    [[nodiscard]] const std::vector<size_t>& GetFieldNumbers() const { return real_field_numbers_; }
 
 	// ====================  MUTATORS      ======================================= 
 

@@ -52,7 +52,7 @@ public:
 
 	// ====================  ACCESSORS     ======================================= 
 
-    CFixedField::PositionMode GetPositionMode() const { return field_position_mode_; }
+    [[nodiscard]] CFixedField::PositionMode GetPositionMode() const { return field_position_mode_; }
 	// ====================  MUTATORS      ======================================= 
 	
 	void SetPositionType(CFixedField::PositionMode position_mode) { field_position_mode_ = position_mode; }
@@ -69,7 +69,7 @@ protected:
 private:
 	// ====================  METHODS       ======================================= 
 
-    std::vector<std::string_view> GetVirtualFieldData(const std::vector<size_t>& field_numbers) const;
+    [[nodiscard]] std::vector<std::string_view> GetVirtualFieldData(const std::vector<size_t>& field_numbers) const;
 
 	// ====================  DATA MEMBERS  ======================================= 
 

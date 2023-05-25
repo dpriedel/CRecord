@@ -56,7 +56,7 @@ CVirtualField::CVirtualField (NameOrNumber reference_type, const std::string& fi
     }
 }  // -----  end of method CVirtualField::CVirtualField  (constructor)  ----- 
 
-std::string_view CVirtualField::UseData (std::string_view record_data, const std::vector<std::string_view>& fields_data)
+std::string_view CVirtualField::UseData (std::string_view  /*record_data*/, const std::vector<std::string_view>& fields_data)
 {
     field_data_ = vws::join_with(fields_data, field_sep_char_) | ranges::to<std::string>();
 	return {field_data_} ;

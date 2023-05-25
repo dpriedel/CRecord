@@ -43,12 +43,12 @@
 //--------------------------------------------------------------------------------------
 CFixedField::CFixedField (PositionMode position_mode, size_t a, size_t b)
 {
-    if (position_mode == PositionMode::e_Start_End)
+    if (position_mode == PositionMode::e_StartEnd)
     {
         offset_ = a - 1;
         length_ = b - a;
     }
-    else if (position_mode == PositionMode::e_Start_Len)
+    else if (position_mode == PositionMode::e_StartLen)
     {
         offset_ = a - 1;
         length_ = b;
@@ -64,7 +64,7 @@ std::string_view CFixedField::UseData (std::string_view record)
 {
 	// our default behavior is to remove leading and trailing blanks.
 	// this can result in an 'empty' field.
-	// TODO: this behaviour can be overridden with field modifiers.
+	// TODO(dpriedel): this behaviour can be overridden with field modifiers.
 	
     std::string_view updated_data{record.data() + offset_, length_};
     if (field_modifier_ == FieldModifiers::e_TrimBoth || field_modifier_ == FieldModifiers::e_TrimLeft)

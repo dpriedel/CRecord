@@ -41,7 +41,7 @@ namespace vws = std::ranges::views;
 //       Class:  CArrayField
 //--------------------------------------------------------------------------------------
 
-std::string_view CArrayField::UseData (std::string_view record_data, const std::vector<std::string_view>& fields_data)
+std::string_view CArrayField::UseData (std::string_view  /*record_data*/, const std::vector<std::string_view>& fields_data)
 {
 	// we get only 1 field passed to us in the fields_data value (by definition of our field type)
     // we need to right trim BUT must take into account the 'field' width of our array entries.	

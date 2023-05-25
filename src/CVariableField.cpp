@@ -43,7 +43,7 @@ std::string_view CVariableField::UseData (std::string_view field_data)
 {
 	// our default behavior is to remove leading and trailing blanks.
 	// this can result in an 'empty' field.
-	// TODO: this behaviour can be overridden with field modifiers.
+	// TODO(dpriedel): this behaviour can be overridden with field modifiers.
 	
     std::string_view updated_data{field_data};
     if (field_modifier_ == FieldModifiers::e_TrimBoth || field_modifier_ == FieldModifiers::e_TrimLeft)

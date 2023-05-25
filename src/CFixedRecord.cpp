@@ -41,14 +41,13 @@ void CFixedRecord::UseData (std::string_view record_data)
 	for (auto& field_data : fields_)
 	{
 	    field_data.field_data_ = std::visit(
-                overloaded {
+                Overloaded {
                     [](std::monostate&) -> std::string_view { return {}; },
                     [this, record_data](CVirtualField& a_field) -> std::string_view { return a_field.UseData(record_data, GetVirtualFieldData(a_field.GetFieldNumbers())); },
                     [this, record_data](CArrayField& a_field) -> std::string_view { return a_field.UseData(record_data, GetVirtualFieldData(a_field.GetFieldNumbers())); },
                     [record_data](auto& a_field) -> std::string_view { return a_field.UseData(record_data); }
                 }, field_data.field_);
 	}
-	return ;
 }		// -----  end of method CFixedRecord::UseData  ----- 
 
 std::vector<std::string_view> CFixedRecord::GetVirtualFieldData (const std::vector<size_t>& field_numbers) const

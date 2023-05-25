@@ -48,14 +48,6 @@ namespace vws = std::ranges::views;
 // // explicit deduction guide (not needed as of C++20)
 // template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
-// --------------------------------------------------------------------------------------
-//       Class:  CRecord_DescVisitor
-//      Method:  CRecord_DescVisitor
-// Description:  constructor
-// --------------------------------------------------------------------------------------
-CRecord_DescVisitor::CRecord_DescVisitor () 
-{
-}  // -----  end of method CRecord_DescVisitor::CRecord_DescVisitor  (constructor)  ----- 
 
 std::any CRecord_DescVisitor::visitFixed_header(CPP_Record_DescParser::Fixed_headerContext *ctx)
 {
@@ -67,7 +59,7 @@ std::any CRecord_DescVisitor::visitFixed_header(CPP_Record_DescParser::Fixed_hea
     auto result = visitChildren(ctx);
 
     auto buffer_len = ctx->buffer_length()->getText();
-    int buf_len;
+    int buf_len = 0;
  
     auto [ptr, ec] = std::from_chars(buffer_len.data(), buffer_len.data() + buffer_len.size(), buf_len);
     if (ec == std::errc())
@@ -105,7 +97,7 @@ std::any CRecord_DescVisitor::visitVariable_header (CPP_Record_DescParser::Varia
     }
 
 	auto fld_cnt = ctx->a->getText();
-    int fld_count;
+    int fld_count = 0;
     auto [ptr, ec] = std::from_chars(fld_cnt.data(), fld_cnt.data() + fld_cnt.size(), fld_count);
     if (ec != std::errc())
     {
@@ -117,7 +109,7 @@ std::any CRecord_DescVisitor::visitVariable_header (CPP_Record_DescParser::Varia
     // if we are not using field names, then we need to construct our field list here so it 
     // can be used by any Virtual fields which might be defined. 
 
-    if (variable_rec.GetFielNamesUsed() != CVariableRecord::FiedlNamesUsed::e_FieldNames_)
+    if (variable_rec.GetFielNamesUsed() != CVariableRecord::FiedlNamesUsed::e_FieldNames)
     {
         // set our default modifier
 
@@ -140,18 +132,18 @@ std::any CRecord_DescVisitor::visitField_names_used (CPP_Record_DescParser::Fiel
     auto result = visitChildren(ctx);
     if (record_type_ == RecordTypes::e_VariableRecord)
     {
-        CVariableRecord::FiedlNamesUsed fld_names;
-        if (ctx->YES())
+        CVariableRecord::FiedlNamesUsed fld_names = {};
+        if (ctx->YES() != nullptr)
         {
-            fld_names = CVariableRecord::FiedlNamesUsed::e_FieldNames_;
+            fld_names = CVariableRecord::FiedlNamesUsed::e_FieldNames;
         }
-        else if (ctx->NO())
+        else if (ctx->NO() != nullptr)
         {
-            fld_names = CVariableRecord::FiedlNamesUsed::e_FieldNumbers_;
+            fld_names = CVariableRecord::FiedlNamesUsed::e_FieldNumbers;
         }
         else 
         {
-            fld_names = CVariableRecord::FiedlNamesUsed::e_UseHeader_;
+            fld_names = CVariableRecord::FiedlNamesUsed::e_UseHeader;
         }
         
         std::get<RecordTypes::e_VariableRecord>(record_).SetUseFieldNames(fld_names);
@@ -166,15 +158,15 @@ std::any CRecord_DescVisitor::visitLength_data_type (CPP_Record_DescParser::Leng
 
     auto& the_record = std::get<RecordTypes::e_FixedRecord>(record_);
 
-    if (ctx->STARTEND())
+    if (ctx->STARTEND() != nullptr)
     {
-        the_record.SetPositionType(CFixedField::PositionMode::e_Start_End);
+        the_record.SetPositionType(CFixedField::PositionMode::e_StartEnd);
     }
-    else if (ctx->STARTLEN())
+    else if (ctx->STARTLEN() != nullptr)
     {
-        the_record.SetPositionType(CFixedField::PositionMode::e_Start_Len);
+        the_record.SetPositionType(CFixedField::PositionMode::e_StartLen);
     }
-    else if (ctx->LENONLY())
+    else if (ctx->LENONLY() != nullptr)
     {
         the_record.SetPositionType(CFixedField::PositionMode::e_Len);
     }
@@ -202,7 +194,7 @@ std::any CRecord_DescVisitor::visitFixed_field_entry (CPP_Record_DescParser::Fix
 	// in the parse.
 	
 	auto start_or_len_only = ctx->a->getText();
-    int len_a;
+    int len_a = 0;
     int len_b = 0;
     auto [ptr, ec] = std::from_chars(start_or_len_only.data(), start_or_len_only.data() + start_or_len_only.size(), len_a);
     if (ec != std::errc())
@@ -279,25 +271,21 @@ std::any CRecord_DescVisitor::visitField_modifier (CPP_Record_DescParser::Field_
 {
     std::any result = visitChildren(ctx);
 
-    if (ctx->TRIM_LEFT())
+    if (ctx->TRIM_LEFT() != nullptr)
     {
         field_modifier_ = FieldModifiers::e_TrimLeft;
     }
-    else if (ctx->TRIM_RIGHT())
+    else if (ctx->TRIM_RIGHT() != nullptr)
     {
         field_modifier_ = FieldModifiers::e_TrimRight;
     }
-    else if (ctx->TRIM_BOTH())
-    {
-        field_modifier_ = FieldModifiers::e_TrimBoth;
-    }
-    else if (ctx->NO_TRIM())
+    else if (ctx->NO_TRIM() != nullptr)
     {
         field_modifier_ = FieldModifiers::e_NoTrim;
     }
-    else if (ctx->repeating_field()->REPEATING_FIELD())
+    else if (ctx->repeating_field()->REPEATING_FIELD() != nullptr)
     {
-        //TODO: need to pick up repeat count and keep that somewhere
+        // TODO(dpriedel): need to pick up repeat count and keep that somewhere
 
         field_modifier_ = FieldModifiers::e_Repeating;
     }
@@ -319,7 +307,7 @@ std::any CRecord_DescVisitor::visitVirtual_list_field_name (CPP_Record_DescParse
     // that way we can avoid runtime checks and catch an 
     // error in the RecordDesc file.
 
-    const FieldList& flds_list = std::visit(overloaded {
+    const FieldList& flds_list = std::visit(Overloaded {
             [](std::monostate&) { return FieldList{}; },
             [](auto&& arg) { return arg.GetFields(); }
             }, record_);
@@ -354,12 +342,12 @@ std::any CRecord_DescVisitor::visitCombo_field(CPP_Record_DescParser::Combo_fiel
 
     auto fld_name = ctx->FIELD_NAME()->getText();
 
-    CVirtualField::NameOrNumber names_or_numbers;
-    if (ctx->NAME_WORD())
+    CVirtualField::NameOrNumber names_or_numbers = {};
+    if (ctx->NAME_WORD() != nullptr)
     {
         names_or_numbers = CVirtualField::NameOrNumber::e_UseNames;
     }
-    else if (ctx->NUMBER_WORD())
+    else if (ctx->NUMBER_WORD() != nullptr)
     {
         names_or_numbers = CVirtualField::NameOrNumber::e_UseNumbers;
     }
@@ -374,7 +362,7 @@ std::any CRecord_DescVisitor::visitCombo_field(CPP_Record_DescParser::Combo_fiel
     // we can get here for any record type so we'll just use a visitor
     // to pass the data to our CRecord object.
 
-    std::visit(overloaded {
+    std::visit(Overloaded {
             [&new_field](std::monostate&) { /* do nothing */},
             [&new_field](auto& arg) { arg.AddField(new_field); }
             }, record_);
@@ -399,12 +387,12 @@ std::any CRecord_DescVisitor::visitSynth_field (CPP_Record_DescParser::Synth_fie
 
     auto fld_name = ctx->synth_field_name()->getText();
 
-    CVirtualField::NameOrNumber names_or_numbers;
-    if (ctx->NAME_WORD())
+    CVirtualField::NameOrNumber names_or_numbers = {};
+    if (ctx->NAME_WORD() != nullptr)
     {
         names_or_numbers = CVirtualField::NameOrNumber::e_UseNames;
     }
-    else if (ctx->NUMBER_WORD())
+    else if (ctx->NUMBER_WORD() != nullptr)
     {
         names_or_numbers = CVirtualField::NameOrNumber::e_UseNumbers;
     }
@@ -424,7 +412,7 @@ std::any CRecord_DescVisitor::visitSynth_field (CPP_Record_DescParser::Synth_fie
     // we can get here for any record type so we'll just use a visitor
     // to pass the data to our CRecord object.
 
-    std::visit(overloaded {
+    std::visit(Overloaded {
             [&new_field](std::monostate&) { /* do nothing */},
             [&new_field](auto& arg) { arg.AddField(new_field); }
             }, record_);
@@ -446,7 +434,7 @@ std::any CRecord_DescVisitor::visitArray_field (CPP_Record_DescParser::Array_fie
     auto fld_name = ctx->FIELD_NAME()->getText();
     
     auto fld_width = ctx->a->getText();
-    size_t field_width;
+    size_t field_width = 0;
     auto [ptr, ec] = std::from_chars(fld_width.data(), fld_width.data() + fld_width.size(), field_width);
     if (ec != std::errc())
     {
@@ -454,7 +442,7 @@ std::any CRecord_DescVisitor::visitArray_field (CPP_Record_DescParser::Array_fie
     }
 
     auto fld_count = ctx->b->getText();
-    size_t field_count;
+    size_t field_count = 0;
     auto [ptr2, ec2] = std::from_chars(fld_count.data(), fld_count.data() + fld_count.size(), field_count);
     if (ec2 != std::errc())
     {
@@ -464,10 +452,10 @@ std::any CRecord_DescVisitor::visitArray_field (CPP_Record_DescParser::Array_fie
     // if we are using a field name for the base field, it will be picked up and converted 
     // to a field number during children processing.
 
-    if (ctx->NUMBER_WORD())
+    if (ctx->NUMBER_WORD() != nullptr)
     {
         auto base_fld = ctx->d->getText();
-        int base_fld_nbr;
+        int base_fld_nbr = 0;
         auto [ptr, ec] = std::from_chars(base_fld.data(), base_fld.data() + base_fld.size(), base_fld_nbr);
         if (ec != std::errc())
         {
@@ -483,7 +471,7 @@ std::any CRecord_DescVisitor::visitArray_field (CPP_Record_DescParser::Array_fie
     // we can get here for any record type so we'll just use a visitor
     // to pass the data to our CRecord object.
 
-    std::visit(overloaded {
+    std::visit(Overloaded {
             [&new_field](std::monostate&) { /* do nothing */},
             [&new_field](auto& arg) { arg.AddField(new_field); }
             }, record_);

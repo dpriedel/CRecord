@@ -68,10 +68,10 @@ public:
 
 	// ====================  ACCESSORS     ======================================= 
 	
-	const FieldList& GetFields() const { return fields_; }
-	size_t GetBufferLen() const { return buffer_size_; }
+	[[nodiscard]] const FieldList& GetFields() const { return fields_; }
+	[[nodiscard]] size_t GetBufferLen() const { return buffer_size_; }
 
-    size_t ConvertFieldNameToNumber(std::string_view field_name) const
+    [[nodiscard]] size_t ConvertFieldNameToNumber(std::string_view field_name) const
     {
         namespace rng = std::ranges;
         // namespace vws = std::ranges::views;

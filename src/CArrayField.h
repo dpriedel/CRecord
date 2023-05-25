@@ -55,9 +55,9 @@ public:
 
 	// ====================  ACCESSORS     ======================================= 
 
-    const std::vector<size_t>& GetFieldNumbers() const { return real_field_numbers_; }
+    [[nodiscard]] const std::vector<size_t>& GetFieldNumbers() const { return real_field_numbers_; }
 
-    auto GetArray() const
+    [[nodiscard]] auto GetArray() const
     {
         // namespace rng = std::ranges;
         namespace vws = std::ranges::views;

@@ -45,12 +45,12 @@ class CRecord_DescVisitor : public CPP_Record_DescBaseVisitor
 {
 public:
     // ====================  LIFECYCLE     ======================================= 
-    CRecord_DescVisitor ();                             // constructor 
-    ~CRecord_DescVisitor () = default;                             // constructor 
+    // CRecord_DescVisitor () = default;                             // constructor 
+    // ~CRecord_DescVisitor () override = default;                             // constructor 
 
     // ====================  ACCESSORS     ======================================= 
 
-    CRecord GetCRecord() const { return record_; }
+    [[nodiscard]] CRecord GetCRecord() const { return record_; }
 
     // ====================  MUTATORS      ======================================= 
 

@@ -44,7 +44,7 @@ void CVariableRecord::UseData (std::string_view record_data)
 
     // fmt::print("a record: {}\n", record_data);
 
-    auto fields = split_string<std::string_view>(record_data, field_delim_char_);
+    auto fields = SplitString<std::string_view>(record_data, field_delim_char_);
     BOOST_ASSERT_MSG(fields.size() == field_count_, std::format("Wrong number of fields in record. Found: {}. Expected: {}", fields.size(), field_count_).c_str());
 
     if (look_for_header_)
@@ -57,14 +57,13 @@ void CVariableRecord::UseData (std::string_view record_data)
     for(size_t indx = 0; indx < fields_.size(); ++indx)
 	{
 	    fields_[indx].field_data_ = std::visit(
-                overloaded {
+                Overloaded {
                     [](std::monostate&) -> std::string_view { return {}; },
                     [this, record_data](CVirtualField& a_field) -> std::string_view { return a_field.UseData(record_data, GetVirtualFieldData(a_field.GetFieldNumbers())); },
-                    [this, record_data](CArrayField& a_field) -> std::string_view { return {}; },
+                    [this, record_data](CArrayField&  /*a_field*/) -> std::string_view { return {}; },
                     [&fields, indx](auto& a_field) -> std::string_view { return a_field.UseData(fields[indx]); }
                 }, fields_[indx].field_);
 	}
-    return ;
 }		// -----  end of method CVariableRecord::UseData  ----- 
 
 void CVariableRecord::CollectFieldNamesFromHeader(std::vector<std::string_view> field_names)

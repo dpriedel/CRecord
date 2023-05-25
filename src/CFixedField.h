@@ -49,8 +49,8 @@ class CFixedField : public BaseField<CFixedField>
 public:
 	enum class PositionMode
 	{
-		e_Start_Len		=	12,
-		e_Start_End,
+		e_StartLen		=	12,
+		e_StartEnd,
 		e_Len,
 		e_Unknown
 	};

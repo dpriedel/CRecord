@@ -63,7 +63,7 @@ using FieldList = std::vector<FieldData>;
 
 inline FieldModifiers GetFieldModifier (const CField& fld)
 {
-    return std::visit(overloaded {
+    return std::visit(Overloaded {
             [](std::monostate) { return FieldModifiers::e_Unknown; },
             [](const auto& arg) { return arg.GetModifier(); }
             }, fld);
@@ -106,7 +106,7 @@ template <> struct std::formatter<FieldModifiers>: formatter<std::string>
     }
 };
 
-// TODO: finish this if it turns out to be needed
+// TODO(dpriedel): finish this if it turns out to be needed
 //
 // template <> struct std::formatter<CArrayField>: formatter<std::string>
 // {
