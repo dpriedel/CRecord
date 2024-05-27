@@ -13,29 +13,27 @@
 //       Compiler:  g++
 //
 //         Author:  David P. Riedel (), driedel@cox.net
-//   Organization:  
+//   Organization:
 //
 // =====================================================================================
 
+/* This file is part of ModernCRecord. */
 
-    /* This file is part of ModernCRecord. */
+/* ModernCRecord is free software: you can redistribute it and/or modify */
+/* it under the terms of the GNU General Public License as published by */
+/* the Free Software Foundation, either version 3 of the License, or */
+/* (at your option) any later version. */
 
-    /* ModernCRecord is free software: you can redistribute it and/or modify */
-    /* it under the terms of the GNU General Public License as published by */
-    /* the Free Software Foundation, either version 3 of the License, or */
-    /* (at your option) any later version. */
+/* ModernCRecord is distributed in the hope that it will be useful, */
+/* but WITHOUT ANY WARRANTY; without even the implied warranty of */
+/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the */
+/* GNU General Public License for more details. */
 
-    /* ModernCRecord is distributed in the hope that it will be useful, */
-    /* but WITHOUT ANY WARRANTY; without even the implied warranty of */
-    /* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the */
-    /* GNU General Public License for more details. */
+/* You should have received a copy of the GNU General Public License */
+/* along with ModernCRecord.  If not, see <http://www.gnu.org/licenses/>. */
 
-    /* You should have received a copy of the GNU General Public License */
-    /* along with ModernCRecord.  If not, see <http://www.gnu.org/licenses/>. */
-
-
-#ifndef  _CFIELD_INC_
-#define  _CFIELD_INC_
+#ifndef _CFIELD_INC_
+#define _CFIELD_INC_
 
 #include <format>
 #include <string>
@@ -45,10 +43,10 @@
 
 #include "utilities.h"
 
+#include "CArrayField.h"
 #include "CFixedField.h"
 #include "CVariableField.h"
 #include "CVirtualField.h"
-#include "CArrayField.h"
 
 using CField = std::variant<std::monostate, CFixedField, CVariableField, CVirtualField, CArrayField>;
 
@@ -57,27 +55,29 @@ struct FieldData
     std::string field_name_;
     CField field_;
     std::string_view field_data_;
+
+    bool operator==(const FieldData& rhs) const { return field_name_ == rhs.field_name_ && field_ == rhs.field_; }
 };
 
 using FieldList = std::vector<FieldData>;
 
-inline FieldModifiers GetFieldModifier (const CField& fld)
+inline FieldModifiers GetFieldModifier(const CField& fld)
 {
-    return std::visit(Overloaded {
-            [](std::monostate) { return FieldModifiers::e_Unknown; },
-            [](const auto& arg) { return arg.GetModifier(); }
-            }, fld);
+    return std::visit(Overloaded{[](std::monostate) { return FieldModifiers::e_Unknown; },
+                                 [](const auto& arg) { return arg.GetModifier(); }},
+                      fld);
 };
 
 // a custom formater for Modifiers
 
-template <> struct std::formatter<FieldModifiers>: formatter<std::string>
+template <>
+struct std::formatter<FieldModifiers> : formatter<std::string>
 {
     // parse is inherited from formatter<string>.
     auto format(const FieldModifiers& modifier, std::format_context& ctx) const
     {
         std::string mod;
-        switch(modifier)
+        switch (modifier)
         {
             using enum FieldModifiers;
             case e_TrimLeft:
@@ -120,17 +120,19 @@ template <> struct std::formatter<FieldModifiers>: formatter<std::string>
 //     }
 // };
 
-template <> struct std::formatter<FieldData>: formatter<std::string>
+template <>
+struct std::formatter<FieldData> : formatter<std::string>
 {
     // parse is inherited from formatter<string>.
     auto format(const FieldData& field_info, std::format_context& ctx) const
     {
         std::string s;
         std::format_to(std::back_inserter(s), "\tname: {}, mod: {} length: {}, content: ->{}<-.",
-            field_info.field_name_, GetFieldModifier(field_info.field_), field_info.field_data_.size(), field_info.field_data_);
+                       field_info.field_name_, GetFieldModifier(field_info.field_), field_info.field_data_.size(),
+                       field_info.field_data_);
 
         return formatter<std::string>::format(s, ctx);
     }
 };
 
-#endif   // ----- #ifndef _CFIELD_INC_  ----- 
+#endif  // ----- #ifndef _CFIELD_INC_  -----

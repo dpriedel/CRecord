@@ -2,7 +2,7 @@
 //
 //       Filename:  BaseRecord.h
 //
-//    Description:  base class which inherits from various record types 
+//    Description:  base class which inherits from various record types
 //
 //        Version:  1.0
 //        Created:  01/23/2023 02:29:46 PM
@@ -10,29 +10,27 @@
 //       Compiler:  g++
 //
 //         Author:  David P. Riedel (), driedel@cox.net
-//   Organization:  
+//   Organization:
 //
 // =====================================================================================
 
+/* This file is part of ModernCRecord. */
 
-    /* This file is part of ModernCRecord. */
+/* ModernCRecord is free software: you can redistribute it and/or modify */
+/* it under the terms of the GNU General Public License as published by */
+/* the Free Software Foundation, either version 3 of the License, or */
+/* (at your option) any later version. */
 
-    /* ModernCRecord is free software: you can redistribute it and/or modify */
-    /* it under the terms of the GNU General Public License as published by */
-    /* the Free Software Foundation, either version 3 of the License, or */
-    /* (at your option) any later version. */
+/* ModernCRecord is distributed in the hope that it will be useful, */
+/* but WITHOUT ANY WARRANTY; without even the implied warranty of */
+/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the */
+/* GNU General Public License for more details. */
 
-    /* ModernCRecord is distributed in the hope that it will be useful, */
-    /* but WITHOUT ANY WARRANTY; without even the implied warranty of */
-    /* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the */
-    /* GNU General Public License for more details. */
+/* You should have received a copy of the GNU General Public License */
+/* along with ModernCRecord.  If not, see <http://www.gnu.org/licenses/>. */
 
-    /* You should have received a copy of the GNU General Public License */
-    /* along with ModernCRecord.  If not, see <http://www.gnu.org/licenses/>. */
-
-
-#ifndef  _BASERECORD_INC_
-#define  _BASERECORD_INC_
+#ifndef _BASERECORD_INC_
+#define _BASERECORD_INC_
 
 #include <algorithm>
 #include <charconv>
@@ -40,8 +38,7 @@
 #include <ranges>
 #include <stdexcept>
 #include <string>
-#include <utility>
-#include <vector>
+#include <type_traits>
 
 #include "CField.h"
 
@@ -56,42 +53,40 @@ enum RecordTypes
 
 // =====================================================================================
 //        Class:  RecordBase
-//  Description: 
+//  Description:
 //
 // =====================================================================================
-template < class T >
+template <class T>
 class RecordBase
 {
-public:
+   public:
+    // ====================  LIFECYCLE     =======================================
 
-    // ====================  LIFECYCLE     ======================================= 
+    // ====================  ACCESSORS     =======================================
 
-	// ====================  ACCESSORS     ======================================= 
-	
-	[[nodiscard]] const FieldList& GetFields() const { return fields_; }
-	[[nodiscard]] size_t GetBufferLen() const { return buffer_size_; }
+    [[nodiscard]] const FieldList& GetFields() const { return fields_; }
+    [[nodiscard]] size_t GetBufferLen() const { return buffer_size_; }
 
     [[nodiscard]] size_t ConvertFieldNameToNumber(std::string_view field_name) const
     {
         namespace rng = std::ranges;
         // namespace vws = std::ranges::views;
 
-        auto pos = rng::find_if(fields_, [field_name] (const auto& entry) { return entry.field_name_ == field_name; });
+        auto pos = rng::find_if(fields_, [field_name](const auto& entry) { return entry.field_name_ == field_name; });
         if (pos != fields_.end())
         {
             return rng::distance(rng::begin(fields_), pos);
         }
         throw std::invalid_argument(std::format("Unknown field name: {}", field_name));
-
     }
 
-    template<typename FLD_TYPE>
+    template <typename FLD_TYPE>
     const FLD_TYPE& GetField(std::string_view field_name) const
     {
         namespace rng = std::ranges;
         // namespace vws = std::ranges::views;
 
-        auto pos = rng::find_if(fields_, [field_name] (const auto& entry) { return entry.field_name_ == field_name; });
+        auto pos = rng::find_if(fields_, [field_name](const auto& entry) { return entry.field_name_ == field_name; });
         if (pos != fields_.end())
         {
             return std::get<FLD_TYPE>(pos->field_);
@@ -99,7 +94,7 @@ public:
         throw std::invalid_argument(std::format("Unknown field name: {}", field_name));
     }
 
-    template<typename FLD_TYPE>
+    template <typename FLD_TYPE>
     const FLD_TYPE& GetField(size_t which) const
     {
         return std::get<FLD_TYPE>(fields_.at(which).field_);
@@ -109,7 +104,7 @@ public:
     // this WILL THROW if the underlying data is not convertable to the specified
     // numeric type
 
-    template<typename NBR_TYPE>
+    template <typename NBR_TYPE>
     NBR_TYPE ConvertFieldToNumber(std::string_view field_name) const
     {
         const auto fld_data = (*this)[field_name];
@@ -121,7 +116,7 @@ public:
         }
         return base_fld_nbr;
     }
-    template<typename NBR_TYPE>
+    template <typename NBR_TYPE>
     NBR_TYPE ConvertFieldToNumber(size_t which) const
     {
         const auto fld_data = (*this)[which];
@@ -134,19 +129,25 @@ public:
         return base_fld_nbr;
     }
 
-	// ====================  MUTATORS      ======================================= 
+    // ====================  MUTATORS      =======================================
 
     void SetBufferSize(size_t buf_size) { buffer_size_ = buf_size; }
     void AddField(const FieldData& new_field) { fields_.push_back(new_field); }
 
-	// ====================  OPERATORS     ======================================= 
-	
+    // ====================  OPERATORS     =======================================
+
+    template <class U>
+    bool operator==(const RecordBase<U>& rhs) const
+    {
+        return (std::is_same_v<T, U> == true && rhs.fields_ == fields_);
+    }
+
     std::string_view operator[](std::string_view field_name) const
     {
         namespace rng = std::ranges;
         // namespace vws = std::ranges::views;
 
-        auto pos = rng::find_if(fields_, [field_name] (const auto& entry) { return entry.field_name_ == field_name; });
+        auto pos = rng::find_if(fields_, [field_name](const auto& entry) { return entry.field_name_ == field_name; });
         if (pos != fields_.end())
         {
             return pos->field_data_;
@@ -154,31 +155,26 @@ public:
         throw std::invalid_argument(std::format("Unknown field name: {}", field_name));
     }
 
-    std::string_view operator[](size_t which) const
-    {
-        return fields_.at(which).field_data_;
-    }
-    
-protected:
-	// ====================  METHODS       ======================================= 
+    std::string_view operator[](size_t which) const { return fields_.at(which).field_data_; }
 
-    // ====================  DATA MEMBERS  ======================================= 
+   protected:
+    // ====================  METHODS       =======================================
 
-private:
+    // ====================  DATA MEMBERS  =======================================
 
-    RecordBase () = default;
+   private:
+    RecordBase() = default;
 
     friend T;
-	// ====================  METHODS       ======================================= 
+    // ====================  METHODS       =======================================
 
-    // ====================  DATA MEMBERS  ======================================= 
+    // ====================  DATA MEMBERS  =======================================
 
     FieldList fields_;
 
     std::string buffer_;
 
     size_t buffer_size_ = 0;
-}; // ----------  end of template class RecordBase  ---------- 
+};  // ----------  end of template class RecordBase  ----------
 
-#endif   // ----- #ifndef _BASERECORD_INC_  ----- 
-
+#endif  // ----- #ifndef _BASERECORD_INC_  -----
