@@ -36,41 +36,40 @@
 //      Method:  CVariableField
 // Description:  constructor
 //--------------------------------------------------------------------------------------
-std::string_view CVariableField::UseData(std::string_view field_data)
+void CVariableField::UseData(std::string_view field_data)
 
 {
     // our default behavior is to remove leading and trailing blanks.
     // this can result in an 'empty' field.
     // TODO(dpriedel): this behaviour can be overridden with field modifiers.
 
-    std::string_view updated_data{field_data};
+    field_data_ = field_data;
     if (field_modifier_ == FieldModifiers::e_TrimBoth || field_modifier_ == FieldModifiers::e_TrimLeft)
     {
-        auto pos = updated_data.find_first_not_of(' ');
+        auto pos = field_data_.find_first_not_of(' ');
         if (pos == std::string_view::npos)
         {  // no non-blank characters in field so it is empty.
             // make it so.
 
-            updated_data = {};
+            field_data_ = {};
         }
         else if (pos > 0)
         {
-            updated_data.remove_prefix(pos);
+            field_data_.remove_prefix(pos);
         }
     }
     if (field_modifier_ == FieldModifiers::e_TrimBoth || field_modifier_ == FieldModifiers::e_TrimRight)
     {
-        auto pos = updated_data.find_last_not_of(' ');
+        auto pos = field_data_.find_last_not_of(' ');
         if (pos == std::string_view::npos)
         {  // no non-blank characters in field so it is empty.
             // make it so.
 
-            updated_data = {};
+            field_data_ = {};
         }
-        else if (pos < updated_data.size() - 1)
+        else if (pos < field_data_.size() - 1)
         {
-            updated_data.remove_suffix(updated_data.size() - pos - 1);
+            field_data_.remove_suffix(field_data_.size() - pos - 1);
         }
     }
-    return updated_data;
 }  // -----  end of method CVariableField::UseData  -----
