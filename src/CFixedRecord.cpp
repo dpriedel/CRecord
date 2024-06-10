@@ -30,27 +30,27 @@
 /* along with ModernCRecord.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "CFixedRecord.h"
+#include "utilities.h"
 
 void CFixedRecord::UseData(std::string_view record_data)
 {
     // fmt::print("input: {:30}\n", record_data);
     // auto xxx = [record_data](auto&& a_field) -> std::string_view { return a_field.UseData(record_data); };
-    for (auto& field_data : fields_)
+    for (auto& field : fields_)
     {
-        field_data.field_data_ = std::visit(
-            Overloaded{[](std::monostate&) -> std::string_view { return {}; },
-                       [this, record_data](CVirtualField& a_field) -> std::string_view
-                       { return a_field.UseData(record_data, GetVirtualFieldData(a_field.GetFieldNumbers())); },
-                       [this, record_data](CArrayField& a_field) -> std::string_view
-                       { return a_field.UseData(record_data, GetVirtualFieldData(a_field.GetFieldNumbers())); },
-                       [record_data](auto& a_field) -> std::string_view { return a_field.UseData(record_data); }},
-            field_data.field_);
+        std::visit(Overloaded{[this, record_data](CArrayField& a_field)
+                              { a_field.UseData(record_data, GetVirtualFieldData(a_field.GetFieldNumbers())); },
+                              [this, record_data](CVirtualField& a_field)
+                              { a_field.UseData(record_data, GetVirtualFieldData(a_field.GetFieldNumbers())); },
+                              [record_data](auto& a_field) { a_field.UseData(record_data); }},
+                   field);
     }
 }  // -----  end of method CFixedRecord::UseData  -----
 
 std::vector<std::string_view> CFixedRecord::GetVirtualFieldData(const std::vector<size_t>& field_numbers) const
 {
-    std::vector<std::string_view> virtual_field_data{field_numbers.size()};
+    std::vector<std::string_view> virtual_field_data;
+    virtual_field_data.reserve(field_numbers.size());
     for (const auto& fld_nbr : field_numbers)
     {
         virtual_field_data.push_back((*this)[fld_nbr]);

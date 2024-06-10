@@ -72,7 +72,9 @@ class RecordBase
         namespace rng = std::ranges;
         // namespace vws = std::ranges::views;
 
-        auto pos = rng::find_if(fields_, [field_name](const auto& entry) { return entry.field_name_ == field_name; });
+        auto pos = rng::find_if(
+            fields_, [&field_name](const auto& fld)
+            { return std::visit([&field_name](const auto& fld) { return field_name == fld.GetFieldName(); }, fld); });
         if (pos != fields_.end())
         {
             return rng::distance(rng::begin(fields_), pos);
@@ -86,10 +88,12 @@ class RecordBase
         namespace rng = std::ranges;
         // namespace vws = std::ranges::views;
 
-        auto pos = rng::find_if(fields_, [field_name](const auto& entry) { return entry.field_name_ == field_name; });
+        auto pos = rng::find_if(
+            fields_, [&field_name](const auto& fld)
+            { return std::visit([&field_name](const auto& fld) { return field_name == fld.GetFieldName(); }, fld); });
         if (pos != fields_.end())
         {
-            return std::get<FLD_TYPE>(pos->field_);
+            return std::get<FLD_TYPE>(*pos);
         }
         throw std::invalid_argument(std::format("Unknown field name: {}", field_name));
     }
@@ -97,7 +101,7 @@ class RecordBase
     template <typename FLD_TYPE>
     const FLD_TYPE& GetField(size_t which) const
     {
-        return std::get<FLD_TYPE>(fields_.at(which).field_);
+        return std::get<FLD_TYPE>(fields_.at(which));
     }
 
     // convert the data to the desired numerical type -- INT or FLOAT most likely.
@@ -116,6 +120,7 @@ class RecordBase
         }
         return base_fld_nbr;
     }
+
     template <typename NBR_TYPE>
     NBR_TYPE ConvertFieldToNumber(size_t which) const
     {
@@ -132,7 +137,7 @@ class RecordBase
     // ====================  MUTATORS      =======================================
 
     void SetBufferSize(size_t buf_size) { buffer_size_ = buf_size; }
-    void AddField(const FieldData& new_field) { fields_.push_back(new_field); }
+    void AddField(const CField& new_field) { fields_.push_back(new_field); }
 
     // ====================  OPERATORS     =======================================
 
@@ -147,15 +152,20 @@ class RecordBase
         namespace rng = std::ranges;
         // namespace vws = std::ranges::views;
 
-        auto pos = rng::find_if(fields_, [field_name](const auto& entry) { return entry.field_name_ == field_name; });
+        auto pos = rng::find_if(
+            fields_, [field_name](const auto& field)
+            { return std::visit([field_name](const auto& fld) { return field_name == fld.GetFieldName(); }, field); });
         if (pos != fields_.end())
         {
-            return pos->field_data_;
+            return std::visit([](const auto& fld) { return fld.GetFieldData(); }, *pos);
         }
         throw std::invalid_argument(std::format("Unknown field name: {}", field_name));
     }
 
-    std::string_view operator[](size_t which) const { return fields_.at(which).field_data_; }
+    std::string_view operator[](size_t which) const
+    {
+        return std::visit([&which](const auto& fld) { return fld.GetFieldData(); }, fields_.at(which));
+    }
 
    protected:
     // ====================  METHODS       =======================================

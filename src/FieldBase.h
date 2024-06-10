@@ -4,8 +4,8 @@
 //
 //    Description:  Interface class for fields
 //
-//        Version:  1.0
-//        Created:  03/27/2023 04:38:23 PM
+//        Version:  2.0
+//        Created:  2024-06-09 10:00 AM
 //       Revision:  none
 //       Compiler:  g++
 //
@@ -35,9 +35,11 @@
 // use this to make accessing the below variant less opaque.
 
 #include <cstddef>
+#include <cstdint>
+#include <string>
 #include <type_traits>
 
-enum FieldTypes
+enum class FieldTypes : int32_t
 {
     e_FixedField = 1,
     e_VariableField,
@@ -46,7 +48,7 @@ enum FieldTypes
     e_ArrayField
 };
 
-enum class FieldModifiers
+enum class FieldModifiers : int32_t
 {
     e_TrimBoth,
     e_TrimLeft,
@@ -69,11 +71,16 @@ class BaseField
 
     // ====================  ACCESSORS     =======================================
 
-    FieldModifiers GetModifier() const { return field_modifier_; }
+    FieldModifiers GetFieldModifier() const { return field_modifier_; }
+    const std::string& GetFieldName() const { return field_name_; }
+    std::string_view GetFieldData() const { return field_data_; }
+    size_t GetFieldSize() const { return length_; }
 
     // ====================  MUTATORS      =======================================
 
-    void SetModifier(FieldModifiers modifier) { field_modifier_ = modifier; }
+    void SetFieldModifier(FieldModifiers modifier) { field_modifier_ = modifier; }
+    void SetFieldName(const std::string& name) { field_name_ = name; }
+    void SetFieldNumbe(size_t number) { field_number_ = number; }
 
     // ====================  OPERATORS     =======================================
 
@@ -92,13 +99,19 @@ class BaseField
    private:
     BaseField(){};  // constructor
     friend T;
+
     // ====================  METHODS       =======================================
 
     // ====================  DATA MEMBERS  =======================================
 
     size_t offset_ = 0;
     size_t length_ = 0;
+    size_t field_number_ = 0;
+
     FieldModifiers field_modifier_ = FieldModifiers::e_Unknown;
+
+    std::string field_name_;
+    std::string_view field_data_;
 
 };  // ----------  end of template class CField  ----------
 

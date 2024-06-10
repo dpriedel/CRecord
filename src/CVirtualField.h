@@ -2,7 +2,7 @@
 //
 //       Filename:  CVirtualField.h
 //
-//    Description:  Virtual Field interface 
+//    Description:  Virtual Field interface
 //
 //        Version:  1.0
 //        Created:  03/27/2023 04:55:56 PM
@@ -10,29 +10,27 @@
 //       Compiler:  g++
 //
 //         Author:  David P. Riedel (), driedel@cox.net
-//   Organization:  
+//   Organization:
 //
 // =====================================================================================
 
+/* This file is part of ModernCRecord. */
 
-    /* This file is part of ModernCRecord. */
+/* ModernCRecord is free software: you can redistribute it and/or modify */
+/* it under the terms of the GNU General Public License as published by */
+/* the Free Software Foundation, either version 3 of the License, or */
+/* (at your option) any later version. */
 
-    /* ModernCRecord is free software: you can redistribute it and/or modify */
-    /* it under the terms of the GNU General Public License as published by */
-    /* the Free Software Foundation, either version 3 of the License, or */
-    /* (at your option) any later version. */
+/* ModernCRecord is distributed in the hope that it will be useful, */
+/* but WITHOUT ANY WARRANTY; without even the implied warranty of */
+/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the */
+/* GNU General Public License for more details. */
 
-    /* ModernCRecord is distributed in the hope that it will be useful, */
-    /* but WITHOUT ANY WARRANTY; without even the implied warranty of */
-    /* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the */
-    /* GNU General Public License for more details. */
+/* You should have received a copy of the GNU General Public License */
+/* along with ModernCRecord.  If not, see <http://www.gnu.org/licenses/>. */
 
-    /* You should have received a copy of the GNU General Public License */
-    /* along with ModernCRecord.  If not, see <http://www.gnu.org/licenses/>. */
-
-
-#ifndef  _CVIRTUALFIELD_INC_
-#define  _CVIRTUALFIELD_INC_
+#ifndef _CVIRTUALFIELD_INC_
+#define _CVIRTUALFIELD_INC_
 
 #include <string>
 #include <string_view>
@@ -47,8 +45,7 @@
 // =====================================================================================
 class CVirtualField : public BaseField<CVirtualField>
 {
-public:
-
+   public:
     enum class NameOrNumber
     {
         e_UseNames,
@@ -56,39 +53,39 @@ public:
         e_Unknown
     };
 
-	// ====================  LIFECYCLE     ======================================= 
-	CVirtualField () = default;                             // constructor 
-	CVirtualField(NameOrNumber reference_type, const std::string& field_sep_char,
-	        const std::vector<size_t>& field_numbers);
+    // ====================  LIFECYCLE     =======================================
+    CVirtualField() = default;  // constructor
+    CVirtualField(NameOrNumber reference_type, const std::string& field_sep_char,
+                  const std::vector<size_t>& field_numbers);
 
-	// ====================  ACCESSORS     ======================================= 
+    // ====================  ACCESSORS     =======================================
 
     // const std::vector<std::string>& GetFieldNames() const { return real_field_names_; }
     [[nodiscard]] const std::vector<size_t>& GetFieldNumbers() const { return real_field_numbers_; }
 
-	// ====================  MUTATORS      ======================================= 
+    // ====================  MUTATORS      =======================================
 
-    std::string_view UseData(std::string_view record_data, const std::vector<std::string_view>& fields_data);
+    void UseData(std::string_view record_data, const std::vector<std::string_view>& fields_data);
 
-	// ====================  OPERATORS     ======================================= 
+    // ====================  OPERATORS     =======================================
 
-protected:
-	// ====================  METHODS       ======================================= 
+   protected:
+    // ====================  METHODS       =======================================
 
-	// ====================  DATA MEMBERS  ======================================= 
+    // ====================  DATA MEMBERS  =======================================
 
-private:
-	// ====================  METHODS       ======================================= 
+   private:
+    // ====================  METHODS       =======================================
 
-	// ====================  DATA MEMBERS  ======================================= 
+    // ====================  DATA MEMBERS  =======================================
 
-    std::string field_data_;
+    std::string virt_field_data_;
     // std::vector<std::string> real_field_names_;
     std::vector<size_t> real_field_numbers_;
 
     NameOrNumber field_reference_type_ = NameOrNumber::e_Unknown;
     std::string field_sep_char_;
 
-}; // -----  end of class CVirtualField  ----- 
+};  // -----  end of class CVirtualField  -----
 
-#endif   // ----- #ifndef _CVIRTUALFIELD_INC_  ----- 
+#endif  // ----- #ifndef _CVIRTUALFIELD_INC_  -----

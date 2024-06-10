@@ -37,36 +37,17 @@
 
 #include <format>
 #include <string>
-#include <string_view>
 #include <variant>
 #include <vector>
-
-#include "utilities.h"
 
 #include "CArrayField.h"
 #include "CFixedField.h"
 #include "CVariableField.h"
 #include "CVirtualField.h"
 
-using CField = std::variant<std::monostate, CFixedField, CVariableField, CVirtualField, CArrayField>;
+using CField = std::variant<CFixedField, CVariableField, CVirtualField, CArrayField>;
 
-struct FieldData
-{
-    std::string field_name_;
-    CField field_;
-    std::string_view field_data_;
-
-    bool operator==(const FieldData& rhs) const { return field_name_ == rhs.field_name_ && field_ == rhs.field_; }
-};
-
-using FieldList = std::vector<FieldData>;
-
-inline FieldModifiers GetFieldModifier(const CField& fld)
-{
-    return std::visit(Overloaded{[](std::monostate) { return FieldModifiers::e_Unknown; },
-                                 [](const auto& arg) { return arg.GetModifier(); }},
-                      fld);
-};
+using FieldList = std::vector<CField>;
 
 // a custom formater for Modifiers
 
@@ -121,15 +102,19 @@ struct std::formatter<FieldModifiers> : formatter<std::string>
 // };
 
 template <>
-struct std::formatter<FieldData> : formatter<std::string>
+struct std::formatter<CField> : std::formatter<std::string>
 {
     // parse is inherited from formatter<string>.
-    auto format(const FieldData& field_info, std::format_context& ctx) const
+    auto format(const CField& field, std::format_context& ctx) const
     {
         std::string s;
-        std::format_to(std::back_inserter(s), "\tname: {}, mod: {} length: {}, content: ->{}<-.",
-                       field_info.field_name_, GetFieldModifier(field_info.field_), field_info.field_data_.size(),
-                       field_info.field_data_);
+        std::visit(
+            [&s](const auto& fld)
+            {
+                std::format_to(std::back_inserter(s), "\tname: {}, mod: {} length: {}, content: ->{}<-.",
+                               fld.GetFieldName(), fld.GetFieldModifier(), fld.GetFieldSize(), fld.GetFieldData());
+            },
+            field);
 
         return formatter<std::string>::format(s, ctx);
     }

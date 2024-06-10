@@ -2,36 +2,35 @@
 //
 //       Filename:  CArrayField.h
 //
-//    Description:  Array Field interface 
+//    Description:  Array Field interface
 //
-//        Version:  1.0
-//        Created:  03/27/2023 05:00:12 PM
+//        Version:  2.0
+//        Created:  2024-06-10 01:18 PM
 //       Revision:  none
 //       Compiler:  g++
 //
 //         Author:  David P. Riedel (), driedel@cox.net
-//   Organization:  
+//   Organization:
 //
 // =====================================================================================
 
-    /* This file is part of ModernCRecord. */
+/* This file is part of ModernCRecord. */
 
-    /* ModernCRecord is free software: you can redistribute it and/or modify */
-    /* it under the terms of the GNU General Public License as published by */
-    /* the Free Software Foundation, either version 3 of the License, or */
-    /* (at your option) any later version. */
+/* ModernCRecord is free software: you can redistribute it and/or modify */
+/* it under the terms of the GNU General Public License as published by */
+/* the Free Software Foundation, either version 3 of the License, or */
+/* (at your option) any later version. */
 
-    /* ModernCRecord is distributed in the hope that it will be useful, */
-    /* but WITHOUT ANY WARRANTY; without even the implied warranty of */
-    /* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the */
-    /* GNU General Public License for more details. */
+/* ModernCRecord is distributed in the hope that it will be useful, */
+/* but WITHOUT ANY WARRANTY; without even the implied warranty of */
+/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the */
+/* GNU General Public License for more details. */
 
-    /* You should have received a copy of the GNU General Public License */
-    /* along with ModernCRecord.  If not, see <http://www.gnu.org/licenses/>. */
+/* You should have received a copy of the GNU General Public License */
+/* along with ModernCRecord.  If not, see <http://www.gnu.org/licenses/>. */
 
-
-#ifndef  _CARRAYFIELD_INC_
-#define  _CARRAYFIELD_INC_
+#ifndef _CARRAYFIELD_INC_
+#define _CARRAYFIELD_INC_
 
 #include <ranges>
 #include <vector>
@@ -40,20 +39,21 @@
 
 // =====================================================================================
 //        Class:  CArrayField
-//  Description:  Field which maps a contiguous set of characters into an 'array' of 
+//  Description:  Field which maps a contiguous set of characters into an 'array' of
 //                  fields.
 // =====================================================================================
 class CArrayField : public BaseField<CArrayField>
 {
-public:
+   public:
+    // ====================  LIFECYCLE     =======================================
+    //
+    CArrayField() = default;  // constructor
+    CArrayField(size_t field_width, size_t field_count, const std::vector<size_t>& field_numbers)
+        : field_width_{field_width}, field_count_{field_count}, real_field_numbers_{field_numbers}
+    {
+    }
 
-	// ====================  LIFECYCLE     ======================================= 
-	//
-	CArrayField () = default;                             // constructor 
-	CArrayField (size_t field_width, size_t field_count, const std::vector<size_t>& field_numbers)
-	    : field_width_{field_width}, field_count_{field_count}, real_field_numbers_{field_numbers} { }
-
-	// ====================  ACCESSORS     ======================================= 
+    // ====================  ACCESSORS     =======================================
 
     [[nodiscard]] const std::vector<size_t>& GetFieldNumbers() const { return real_field_numbers_; }
 
@@ -62,31 +62,31 @@ public:
         // namespace rng = std::ranges;
         namespace vws = std::ranges::views;
 
-        return vws::transform(field_data_ | vws::chunk(field_width_), [] (const auto& fld) { return std::string_view{fld}; });
+        // we use a view since they are 'lite weight' and lazy evaluated.
+        return vws::chunk(field_data_, field_width_) |
+               vws::transform([](auto&& item_rng) { return std::string_view(item_rng.begin(), item_rng.end()); });
     }
-	// ====================  MUTATORS      ======================================= 
+    // ====================  MUTATORS      =======================================
 
-    std::string_view UseData(std::string_view record_data, const std::vector<std::string_view>& fields_data);
+    void UseData(std::string_view record_data, const std::vector<std::string_view>& fields_data);
 
-	// ====================  OPERATORS     ======================================= 
+    // ====================  OPERATORS     =======================================
 
-protected:
-	// ====================  METHODS       ======================================= 
+   protected:
+    // ====================  METHODS       =======================================
 
-	// ====================  DATA MEMBERS  ======================================= 
+    // ====================  DATA MEMBERS  =======================================
 
-private:
-	// ====================  METHODS       ======================================= 
+   private:
+    // ====================  METHODS       =======================================
 
-	// ====================  DATA MEMBERS  ======================================= 
+    // ====================  DATA MEMBERS  =======================================
 
-    std::string field_data_;
-    // std::vector<std::string> real_field_names_;
     std::vector<size_t> real_field_numbers_;
 
     size_t field_width_ = 0;
     size_t field_count_ = 0;
 
-}; // -----  end of class CArrayField  ----- 
+};  // -----  end of class CArrayField  -----
 
-#endif   // ----- #ifndef _CARRAYFIELD_INC_  ----- 
+#endif  // ----- #ifndef _CARRAYFIELD_INC_  -----

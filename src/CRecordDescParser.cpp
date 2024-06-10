@@ -11,42 +11,42 @@
 //       Compiler:  g++
 //
 //         Author:  David P. Riedel (), driedel@cox.net
-//   Organization:  
+//   Organization:
 //
 // =====================================================================================
 
-    /* This file is part of ModernCRecord. */
+/* This file is part of ModernCRecord. */
 
-    /* ModernCRecord is free software: you can redistribute it and/or modify */
-    /* it under the terms of the GNU General Public License as published by */
-    /* the Free Software Foundation, either version 3 of the License, or */
-    /* (at your option) any later version. */
+/* ModernCRecord is free software: you can redistribute it and/or modify */
+/* it under the terms of the GNU General Public License as published by */
+/* the Free Software Foundation, either version 3 of the License, or */
+/* (at your option) any later version. */
 
-    /* ModernCRecord is distributed in the hope that it will be useful, */
-    /* but WITHOUT ANY WARRANTY; without even the implied warranty of */
-    /* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the */
-    /* GNU General Public License for more details. */
+/* ModernCRecord is distributed in the hope that it will be useful, */
+/* but WITHOUT ANY WARRANTY; without even the implied warranty of */
+/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the */
+/* GNU General Public License for more details. */
 
-    /* You should have received a copy of the GNU General Public License */
-    /* along with ModernCRecord.  If not, see <http://www.gnu.org/licenses/>. */
+/* You should have received a copy of the GNU General Public License */
+/* along with ModernCRecord.  If not, see <http://www.gnu.org/licenses/>. */
 
 // #include <format>
 
 #include "antlr4-runtime.h"
 
-#include "CRecordDescParser.h"
 #include "CPP_Record_DescLexer.h"
 #include "CPP_Record_DescParser.h"
+#include "CRecordDescParser.h"
 #include "CRecordDescVisitor.h"
 
 #include "utilities.h"
 
 using namespace antlr4;
 
-
-std::optional<CRecord> CRecordDescParser::ParseRecordDescFile (const fs::path& record_desc_path)
+std::optional<CRecord> CRecordDescParser::ParseRecordDescFile(const fs::path& record_desc_path)
 {
-	BOOST_ASSERT_MSG(fs::exists(record_desc_path), std::format("Can't find record description file: {}", record_desc_path).c_str());
+    BOOST_ASSERT_MSG(fs::exists(record_desc_path),
+                     std::format("Can't find record description file: {}", record_desc_path).c_str());
 
     const std::string record_desc_data = LoadDataFileForUse(record_desc_path);
 
@@ -67,7 +67,5 @@ std::optional<CRecord> CRecordDescParser::ParseRecordDescFile (const fs::path& r
 
     CRecord_DescVisitor visitor;
     visitor.visit(parsed_tree);
-	return {visitor.GetCRecord()};
-}		// -----  end of method CRecordDescParser::ParseRecordDescFile  ----- 
-
-
+    return {visitor.GetCRecord()};
+}  // -----  end of method CRecordDescParser::ParseRecordDescFile  -----
