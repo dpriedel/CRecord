@@ -2,7 +2,7 @@
 //
 //       Filename:  CVariableField.h
 //
-//    Description:  Variable Field interfac3 
+//    Description:  Variable Field interfac3
 //
 //        Version:  1.0
 //        Created:  03/27/2023 04:52:31 PM
@@ -10,29 +10,27 @@
 //       Compiler:  g++
 //
 //         Author:  David P. Riedel (), driedel@cox.net
-//   Organization:  
+//   Organization:
 //
 // =====================================================================================
 
+/* This file is part of ModernCRecord. */
 
-    /* This file is part of ModernCRecord. */
+/* ModernCRecord is free software: you can redistribute it and/or modify */
+/* it under the terms of the GNU General Public License as published by */
+/* the Free Software Foundation, either version 3 of the License, or */
+/* (at your option) any later version. */
 
-    /* ModernCRecord is free software: you can redistribute it and/or modify */
-    /* it under the terms of the GNU General Public License as published by */
-    /* the Free Software Foundation, either version 3 of the License, or */
-    /* (at your option) any later version. */
+/* ModernCRecord is distributed in the hope that it will be useful, */
+/* but WITHOUT ANY WARRANTY; without even the implied warranty of */
+/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the */
+/* GNU General Public License for more details. */
 
-    /* ModernCRecord is distributed in the hope that it will be useful, */
-    /* but WITHOUT ANY WARRANTY; without even the implied warranty of */
-    /* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the */
-    /* GNU General Public License for more details. */
+/* You should have received a copy of the GNU General Public License */
+/* along with ModernCRecord.  If not, see <http://www.gnu.org/licenses/>. */
 
-    /* You should have received a copy of the GNU General Public License */
-    /* along with ModernCRecord.  If not, see <http://www.gnu.org/licenses/>. */
-
-
-#ifndef  _CVARIABLEFIELD_INC_
-#define  _CVARIABLEFIELD_INC_
+#ifndef _CVARIABLEFIELD_INC_
+#define _CVARIABLEFIELD_INC_
 
 #include <string_view>
 
@@ -45,28 +43,28 @@
 // =====================================================================================
 class CVariableField : public BaseField<CVariableField>
 {
-public:
-	// ====================  LIFECYCLE     ======================================= 
-	CVariableField () = default;                             // constructor 
+   public:
+    // ====================  LIFECYCLE     =======================================
+    CVariableField() = default;  // constructor
 
-	// ====================  ACCESSORS     ======================================= 
+    // ====================  ACCESSORS     =======================================
 
-	// ====================  MUTATORS      ======================================= 
+    // ====================  MUTATORS      =======================================
 
-    std::string_view UseData(std::string_view field_data);
+    void UseData(std::string_view field_data);
 
-	// ====================  OPERATORS     ======================================= 
+    // ====================  OPERATORS     =======================================
 
-protected:
-	// ====================  METHODS       ======================================= 
+   protected:
+    // ====================  METHODS       =======================================
 
-	// ====================  DATA MEMBERS  ======================================= 
+    // ====================  DATA MEMBERS  =======================================
 
-private:
-	// ====================  METHODS       ======================================= 
+   private:
+    // ====================  METHODS       =======================================
 
-	// ====================  DATA MEMBERS  ======================================= 
+    // ====================  DATA MEMBERS  =======================================
 
-}; // -----  end of class CVariableField  ----- 
+};  // -----  end of class CVariableField  -----
 
-#endif   // ----- #ifndef _CVARIABLEFIELD_INC_  ----- 
+#endif  // ----- #ifndef _CVARIABLEFIELD_INC_  -----
