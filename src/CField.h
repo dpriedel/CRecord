@@ -47,9 +47,12 @@
 
 // Placeholder
 
-class CEmptyField : public BaseField >
+class CEmptyField : public BaseField<CEmptyField>
 {
+   public:
     CEmptyField() = default;
+
+    void UseData(std::string_view record_data) {};
 };
 
 using CField = std::variant<CEmptyField, CFixedField, CVariableField, CVirtualField, CArrayField>;
