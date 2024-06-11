@@ -45,7 +45,14 @@
 #include "CVariableField.h"
 #include "CVirtualField.h"
 
-using CField = std::variant<CFixedField, CVariableField, CVirtualField, CArrayField>;
+// Placeholder
+
+class CEmptyField : public BaseField >
+{
+    CEmptyField() = default;
+};
+
+using CField = std::variant<CEmptyField, CFixedField, CVariableField, CVirtualField, CArrayField>;
 
 using FieldList = std::vector<CField>;
 
