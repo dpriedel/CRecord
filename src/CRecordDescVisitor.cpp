@@ -29,7 +29,6 @@
 /* You should have received a copy of the GNU General Public License */
 /* along with ModernCRecord.  If not, see <http://www.gnu.org/licenses/>. */
 
-#include "utilities.h"
 #include <charconv>
 #include <cstddef>
 #include <format>
@@ -40,11 +39,7 @@ namespace vws = std::ranges::views;
 
 #include "CField.h"
 #include "CRecordDescVisitor.h"
-
-// // helper type for the visitor #4
-// template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-// // explicit deduction guide (not needed as of C++20)
-// template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+#include "utilities.h"
 
 std::any CRecord_DescVisitor::visitFixed_header(CPP_Record_DescParser::Fixed_headerContext *ctx)
 {
@@ -301,30 +296,9 @@ std::any CRecord_DescVisitor::visitVirtual_list_field_name(CPP_Record_DescParser
     // that way we can avoid runtime checks and catch an
     // error in the RecordDesc file.
 
-    // const FieldList &flds_list = std::visit(
-    //     Overloaded{[](std::monostate &) { return FieldList{}; }, [](auto &&arg) { return arg.GetFields(); }},
-    //     record_);
-    //
-    // auto pos = rng::find_if(
-    //     flds_list, [&fld_name](const auto &e)
-    //     { return std::visit([&fld_name](const auto &fld) { return fld.GetFieldName() == fld_name; }, e); });
-    // if (pos == flds_list.end())
-    // {
-    //     throw std::invalid_argument(std::format("Virtual field element: {} was not previously defined.", fld_name));
-    // }
-    //
-    // // list_field_names_.push_back(fld_name);
-    //
-    // // let's translate the name to an index into the fields list so we can
-    // // avoid searching by name when we are mapping record data to fields.
-    //
-    // auto distance = std::distance(flds_list.begin(), pos);
-
     // use logic from BaseRecord
 
-    auto fld_nbr = std::visit(Overloaded{[](std::monostate &) { return size_t{0}; }, [&fld_name](const auto &rec)
-                                         { return rec.ConvertFieldNameToNumber(fld_name); }},
-                              record_);
+    auto fld_nbr = std::visit([&fld_name](const auto &rec) { return rec.ConvertFieldNameToNumber(fld_name); }, record_);
 
     list_field_numbers_.push_back(fld_nbr);
 
@@ -364,9 +338,7 @@ std::any CRecord_DescVisitor::visitCombo_field(CPP_Record_DescParser::Combo_fiel
     // we can get here for any record type so we'll just use a visitor
     // to pass the data to our CRecord object.
 
-    std::visit(Overloaded{[&new_field](std::monostate &) { /* do nothing */ },
-                          [&new_field](auto &arg) { arg.AddField(new_field); }},
-               record_);
+    std::visit([&new_field](auto &arg) { arg.AddField(new_field); }, record_);
 
     return result;
 }  // -----  end of method CRecord_DescVisitor::visitCombo_field  -----
@@ -412,9 +384,7 @@ std::any CRecord_DescVisitor::visitSynth_field(CPP_Record_DescParser::Synth_fiel
     // we can get here for any record type so we'll just use a visitor
     // to pass the data to our CRecord object.
 
-    std::visit(Overloaded{[&new_field](std::monostate &) { /* do nothing */ },
-                          [&new_field](auto &arg) { arg.AddField(new_field); }},
-               record_);
+    std::visit([&new_field](auto &arg) { arg.AddField(new_field); }, record_);
 
     return result;
 
@@ -469,9 +439,7 @@ std::any CRecord_DescVisitor::visitArray_field(CPP_Record_DescParser::Array_fiel
     // we can get here for any record type so we'll just use a visitor
     // to pass the data to our CRecord object.
 
-    std::visit(Overloaded{[&new_field](std::monostate &) { /* do nothing */ },
-                          [&new_field](auto &arg) { arg.AddField(new_field); }},
-               record_);
+    std::visit([&new_field](auto &arg) { arg.AddField(new_field); }, record_);
 
     return result;
 

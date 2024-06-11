@@ -39,9 +39,10 @@
 #include <string>
 #include <type_traits>
 
-enum class FieldTypes : int32_t
+enum FieldTypes
 {
-    e_FixedField = 1,
+    e_EmptyField = 1,
+    e_FixedField,
     e_VariableField,
     e_QuotedField,
     e_VirtualField,

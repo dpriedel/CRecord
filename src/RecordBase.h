@@ -42,15 +42,6 @@
 
 #include "CField.h"
 
-// use this to make accessing the CRecord variant less opaque.
-
-enum RecordTypes
-{
-    e_Unknown = 0,
-    e_FixedRecord = 1,
-    e_VariableRecord = 2
-};
-
 // =====================================================================================
 //        Class:  RecordBase
 //  Description:

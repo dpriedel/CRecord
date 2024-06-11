@@ -32,18 +32,16 @@
 
 // #include <format>
 
-#include "antlr4-runtime.h"
-
+#include "CRecordDescParser.h"
 #include "CPP_Record_DescLexer.h"
 #include "CPP_Record_DescParser.h"
-#include "CRecordDescParser.h"
 #include "CRecordDescVisitor.h"
 
 #include "utilities.h"
 
 using namespace antlr4;
 
-std::optional<CRecord> CRecordDescParser::ParseRecordDescFile(const fs::path& record_desc_path)
+CRecord CRecordDescParser::ParseRecordDescFile(const fs::path& record_desc_path)
 {
     BOOST_ASSERT_MSG(fs::exists(record_desc_path),
                      std::format("Can't find record description file: {}", record_desc_path).c_str());
@@ -67,5 +65,5 @@ std::optional<CRecord> CRecordDescParser::ParseRecordDescFile(const fs::path& re
 
     CRecord_DescVisitor visitor;
     visitor.visit(parsed_tree);
-    return {visitor.GetCRecord()};
+    return visitor.GetCRecord();
 }  // -----  end of method CRecordDescParser::ParseRecordDescFile  -----
