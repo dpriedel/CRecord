@@ -45,7 +45,7 @@
 class CFixedField : public BaseField<CFixedField>
 {
    public:
-    enum class PositionMode
+    enum class PositionMode : int32_t
     {
         e_StartLen = 12,
         e_StartEnd,
@@ -77,5 +77,22 @@ class CFixedField : public BaseField<CFixedField>
     // ====================  DATA MEMBERS  =======================================
 
 };  // ----------  end of template class CField  ----------
+
+// custom formatter for Fixed Fields
+//
+template <>
+struct std::formatter<CFixedField> : std::formatter<std::string>
+{
+    // parse is inherited from formatter<string>.
+    auto format(const CFixedField& field, std::format_context& ctx) const
+    {
+        std::string s;
+        std::format_to(std::back_inserter(s), "\tfixed fld:\tname: {}, mod: {} offset: {} length: {}, content: ->{}<-.",
+                       field.GetFieldName(), field.GetFieldModifier(), field.GetFieldOffset(), field.GetFieldLength(),
+                       field.GetFieldData());
+
+        return formatter<std::string>::format(s, ctx);
+    }
+};
 
 #endif  // ----- #ifndef _CFIXEDFIELD_INC_  -----

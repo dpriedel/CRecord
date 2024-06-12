@@ -36,6 +36,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <format>
 #include <string>
 #include <type_traits>
 
@@ -75,7 +76,8 @@ class BaseField
     FieldModifiers GetFieldModifier() const { return field_modifier_; }
     const std::string& GetFieldName() const { return field_name_; }
     std::string_view GetFieldData() const { return field_data_; }
-    size_t GetFieldSize() const { return length_; }
+    size_t GetFieldOffset() const { return offset_; }
+    size_t GetFieldLength() const { return length_; }
 
     // ====================  MUTATORS      =======================================
 
@@ -115,5 +117,43 @@ class BaseField
     std::string_view field_data_;
 
 };  // ----------  end of template class CField  ----------
+
+// a custom formater for Modifiers
+
+template <>
+struct std::formatter<FieldModifiers> : formatter<std::string>
+{
+    // parse is inherited from formatter<string>.
+    auto format(const FieldModifiers& modifier, std::format_context& ctx) const
+    {
+        std::string mod;
+        switch (modifier)
+        {
+            using enum FieldModifiers;
+            case e_TrimLeft:
+                mod = "TL";
+                break;
+            case e_TrimRight:
+                mod = "TR";
+                break;
+            case e_TrimBoth:
+                mod = "TB";
+                break;
+            case e_NoTrim:
+                mod = "NT";
+                break;
+            case e_Repeating:
+                mod = "RP";
+                break;
+            case e_Unknown:
+                mod = "Unknown";
+                break;
+        };
+        std::string s;
+        std::format_to(std::back_inserter(s), "{}", mod);
+
+        return formatter<std::string>::format(s, ctx);
+    }
+};
 
 #endif  // ----- #ifndef _CFIELDBASE_INC_  -----

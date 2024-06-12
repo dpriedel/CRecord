@@ -55,6 +55,7 @@ class RecordBase
 
     // ====================  ACCESSORS     =======================================
 
+    [[nodiscard]] const size_t GetFieldCount() const { return fields_.size(); }
     [[nodiscard]] const FieldList& GetFields() const { return fields_; }
     [[nodiscard]] size_t GetBufferLen() const { return buffer_size_; }
 

@@ -59,44 +59,6 @@ using CField = std::variant<CEmptyField, CFixedField, CVariableField, CVirtualFi
 
 using FieldList = std::vector<CField>;
 
-// a custom formater for Modifiers
-
-template <>
-struct std::formatter<FieldModifiers> : formatter<std::string>
-{
-    // parse is inherited from formatter<string>.
-    auto format(const FieldModifiers& modifier, std::format_context& ctx) const
-    {
-        std::string mod;
-        switch (modifier)
-        {
-            using enum FieldModifiers;
-            case e_TrimLeft:
-                mod = "TL";
-                break;
-            case e_TrimRight:
-                mod = "TR";
-                break;
-            case e_TrimBoth:
-                mod = "TB";
-                break;
-            case e_NoTrim:
-                mod = "NT";
-                break;
-            case e_Repeating:
-                mod = "RP";
-                break;
-            case e_Unknown:
-                mod = "Unknown";
-                break;
-        };
-        std::string s;
-        std::format_to(std::back_inserter(s), "{}", mod);
-
-        return formatter<std::string>::format(s, ctx);
-    }
-};
-
 // TODO(dpriedel): finish this if it turns out to be needed
 //
 // template <> struct std::formatter<CArrayField>: formatter<std::string>
@@ -112,19 +74,25 @@ struct std::formatter<FieldModifiers> : formatter<std::string>
 // };
 
 template <>
+struct std::formatter<CEmptyField> : std::formatter<std::string>
+{
+    // parse is inherited from formatter<string>.
+    auto format(const CEmptyField& field, std::format_context& ctx) const
+    {
+        std::string s{"Empty Field\n"};
+
+        return formatter<std::string>::format(s, ctx);
+    }
+};
+
+template <>
 struct std::formatter<CField> : std::formatter<std::string>
 {
     // parse is inherited from formatter<string>.
     auto format(const CField& field, std::format_context& ctx) const
     {
         std::string s;
-        std::visit(
-            [&s](const auto& fld)
-            {
-                std::format_to(std::back_inserter(s), "\tname: {}, mod: {} length: {}, content: ->{}<-.",
-                               fld.GetFieldName(), fld.GetFieldModifier(), fld.GetFieldSize(), fld.GetFieldData());
-            },
-            field);
+        std::visit([&s](const auto& fld) { std::format_to(std::back_inserter(s), "{}", fld); }, field);
 
         return formatter<std::string>::format(s, ctx);
     }

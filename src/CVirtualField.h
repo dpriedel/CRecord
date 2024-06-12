@@ -88,4 +88,20 @@ class CVirtualField : public BaseField<CVirtualField>
 
 };  // -----  end of class CVirtualField  -----
 
+// custom formatter for Variable Fields
+//
+template <>
+struct std::formatter<CVirtualField> : std::formatter<std::string>
+{
+    // parse is inherited from formatter<string>.
+    auto format(const CVirtualField& field, std::format_context& ctx) const
+    {
+        std::string s;
+        std::format_to(std::back_inserter(s), "\tvirtual fld:\tname: {}, # component flds: {}, content: ->{}<-.",
+                       field.GetFieldName(), field.GetFieldNumbers().size(), field.GetFieldData());
+
+        return formatter<std::string>::format(s, ctx);
+    }
+};
+
 #endif  // ----- #ifndef _CVIRTUALFIELD_INC_  -----

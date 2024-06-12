@@ -67,4 +67,20 @@ class CVariableField : public BaseField<CVariableField>
 
 };  // -----  end of class CVariableField  -----
 
+// custom formatter for Variable Fields
+//
+template <>
+struct std::formatter<CVariableField> : std::formatter<std::string>
+{
+    // parse is inherited from formatter<string>.
+    auto format(const CVariableField& field, std::format_context& ctx) const
+    {
+        std::string s;
+        std::format_to(std::back_inserter(s), "\tvariable fld:\tname: {}, mod: {}, content: ->{}<-.",
+                       field.GetFieldName(), field.GetFieldModifier(), field.GetFieldData());
+
+        return formatter<std::string>::format(s, ctx);
+    }
+};
+
 #endif  // ----- #ifndef _CVARIABLEFIELD_INC_  -----

@@ -86,7 +86,28 @@ class CArrayField : public BaseField<CArrayField>
 
     size_t field_width_ = 0;
     size_t field_count_ = 0;
+};
 
+// custom formatter for Variable Fields
+//
+template <>
+struct std::formatter<CArrayField> : std::formatter<std::string>
+{
+    // parse is inherited from formatter<string>.
+    auto format(const CArrayField& field, std::format_context& ctx) const
+    {
+        std::string s;
+        auto vals = field.GetArray();
+        std::format_to(std::back_inserter(s), "\tarray fld:\tname: {}, mod: {}, instances: {}\n\t[\n",
+                       field.GetFieldName(), field.GetFieldModifier(), vals.size());
+
+        for (const auto& val : vals)
+        {
+            std::format_to(std::back_inserter(s), "\t\t{}\n", val);
+        }
+        std::format_to(std::back_inserter(s), "\t]\n");
+        return formatter<std::string>::format(s, ctx);
+    }
 };  // -----  end of class CArrayField  -----
 
 #endif  // ----- #ifndef _CARRAYFIELD_INC_  -----

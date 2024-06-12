@@ -39,14 +39,12 @@ namespace vws = std::ranges::views;
 
 #include "CField.h"
 #include "CRecordDescVisitor.h"
-#include "utilities.h"
 
 std::any CRecord_DescVisitor::visitFixed_header(CPP_Record_DescParser::Fixed_headerContext *ctx)
 {
     // Since we got here, we know we are constructing a FixedRecord object.
-
     record_type_ = RecordTypes::e_FixedRecord;
-    record_ = CFixedRecord();
+    record_ = CFixedRecord{};
 
     auto result = visitChildren(ctx);
 

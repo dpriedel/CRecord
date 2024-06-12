@@ -2,7 +2,7 @@
 //
 //       Filename:  CFixedRecord.h
 //
-//    Description:  Header for Fixed length record 
+//    Description:  Header for Fixed length record
 //
 //        Version:  1.0
 //        Created:  01/07/2023 09:38:48 AM
@@ -10,82 +10,104 @@
 //       Compiler:  g++
 //
 //         Author:  David P. Riedel (), driedel@cox.net
-//   Organization:  
+//   Organization:
 //
 // =====================================================================================
 
+/* This file is part of ModernCRecord. */
 
-    /* This file is part of ModernCRecord. */
+/* ModernCRecord is free software: you can redistribute it and/or modify */
+/* it under the terms of the GNU General Public License as published by */
+/* the Free Software Foundation, either version 3 of the License, or */
+/* (at your option) any later version. */
 
-    /* ModernCRecord is free software: you can redistribute it and/or modify */
-    /* it under the terms of the GNU General Public License as published by */
-    /* the Free Software Foundation, either version 3 of the License, or */
-    /* (at your option) any later version. */
+/* ModernCRecord is distributed in the hope that it will be useful, */
+/* but WITHOUT ANY WARRANTY; without even the implied warranty of */
+/* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the */
+/* GNU General Public License for more details. */
 
-    /* ModernCRecord is distributed in the hope that it will be useful, */
-    /* but WITHOUT ANY WARRANTY; without even the implied warranty of */
-    /* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the */
-    /* GNU General Public License for more details. */
+/* You should have received a copy of the GNU General Public License */
+/* along with ModernCRecord.  If not, see <http://www.gnu.org/licenses/>. */
 
-    /* You should have received a copy of the GNU General Public License */
-    /* along with ModernCRecord.  If not, see <http://www.gnu.org/licenses/>. */
-
-
-#ifndef  _CFIXEDRECORD_INC_
-#define  _CFIXEDRECORD_INC_
+#ifndef _CFIXEDRECORD_INC_
+#define _CFIXEDRECORD_INC_
 
 #include <format>
 #include <string_view>
 
+#include "CFixedField.h"
 #include "RecordBase.h"
 
 // =====================================================================================
 //        Class:  CFixedRecord
-//  Description: 
+//  Description:
 //
 // =====================================================================================
-class CFixedRecord : public RecordBase<CFixedRecord> 
+class CFixedRecord : public RecordBase<CFixedRecord>
 {
-public:
-	// ====================  LIFECYCLE     ======================================= 
-	// CFixedRecord () =default;
+   public:
+    // ====================  LIFECYCLE     =======================================
+    CFixedRecord() = default;
 
-	// ====================  ACCESSORS     ======================================= 
+    // ====================  ACCESSORS     =======================================
 
     [[nodiscard]] CFixedField::PositionMode GetPositionMode() const { return field_position_mode_; }
-	// ====================  MUTATORS      ======================================= 
-	
-	void SetPositionType(CFixedField::PositionMode position_mode) { field_position_mode_ = position_mode; }
+    // ====================  MUTATORS      =======================================
+
+    void SetPositionType(CFixedField::PositionMode position_mode) { field_position_mode_ = position_mode; }
 
     void UseData(std::string_view record_data);
 
-	// ====================  OPERATORS     ======================================= 
+    // ====================  OPERATORS     =======================================
 
-protected:
-	// ====================  METHODS       ======================================= 
+   protected:
+    // ====================  METHODS       =======================================
 
-	// ====================  DATA MEMBERS  ======================================= 
+    // ====================  DATA MEMBERS  =======================================
 
-private:
-	// ====================  METHODS       ======================================= 
+   private:
+    // ====================  METHODS       =======================================
 
     [[nodiscard]] std::vector<std::string_view> GetVirtualFieldData(const std::vector<size_t>& field_numbers) const;
 
-	// ====================  DATA MEMBERS  ======================================= 
+    friend std::formatter<CFixedRecord>;
+
+    // ====================  DATA MEMBERS  =======================================
 
     CFixedField::PositionMode field_position_mode_ = CFixedField::PositionMode::e_Unknown;
 
-}; // -----  end of class CFixedRecord  ----- 
+};  // -----  end of class CFixedRecord  -----
 
-// a custom formater for fields
+template <>
+struct std::formatter<CFixedField::PositionMode> : std::formatter<std::string>
+{
+    // parse is inherited from formatter<string>.
+    auto format(const CFixedField::PositionMode& position_mode, std::format_context& ctx) const
+    {
+        using enum CFixedField::PositionMode;
+        std::string s;
+        std::format_to(std::back_inserter(s), "{}",
+                       position_mode == e_StartEnd   ? "start-end"
+                       : position_mode == e_StartLen ? "start-length"
+                       : position_mode == e_Len      ? "length"
+                                                     : "unknown");
 
-template <> struct std::formatter<CFixedRecord>: std::formatter<std::string>
+        return formatter<std::string>::format(s, ctx);
+    }
+};
+
+// a custom formater for variable record
+
+template <>
+struct std::formatter<CFixedRecord> : std::formatter<std::string>
 {
     // parse is inherited from formatter<string>.
     auto format(const CFixedRecord& a_record, std::format_context& ctx) const
     {
         std::string s;
-        std::format_to(std::back_inserter(s), "FixedRecord\n");
+        std::format_to(std::back_inserter(s), "FixdRecord:\n\tposition mode: {}\t# of fields: {}\tbuffer len: {}\n",
+                       a_record.field_position_mode_, a_record.GetFieldCount(), a_record.GetBufferLen());
+
         for (const auto& fld : a_record.GetFields())
         {
             std::format_to(std::back_inserter(s), "{}\n", fld);
@@ -94,4 +116,4 @@ template <> struct std::formatter<CFixedRecord>: std::formatter<std::string>
     }
 };
 
-#endif   // ----- #ifndef _CFIXEDRECORD_INC_  ----- 
+#endif  // ----- #ifndef _CFIXEDRECORD_INC_  -----

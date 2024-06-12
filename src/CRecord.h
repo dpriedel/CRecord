@@ -32,6 +32,7 @@
 #ifndef _CRECORD_INC_
 #define _CRECORD_INC_
 
+#include <format>
 #include <stdexcept>
 #include <string>
 #include <variant>
@@ -76,5 +77,37 @@ class CEmptyRecord : public RecordBase<CEmptyRecord>
 };
 
 using CRecord = std::variant<CEmptyRecord, CFixedRecord, CVariableRecord>;
+
+// a custom formater for EmptyRecord
+
+template <>
+struct std::formatter<CEmptyRecord> : std::formatter<std::string>
+{
+    // parse is inherited from formatter<string>.
+    auto format(const CEmptyRecord& a_record, std::format_context& ctx) const
+    {
+        std::string s;
+        std::format_to(std::back_inserter(s), "EmptyRecord\n");
+        // for (const auto& fld : a_record.GetFields())
+        // {
+        //     std::format_to(std::back_inserter(s), "{}\n", fld);
+        // }
+        return formatter<std::string>::format(s, ctx);
+    }
+};
+
+// a custom formater for CRecord
+
+template <>
+struct std::formatter<CRecord> : std::formatter<std::string>
+{
+    // parse is inherited from formatter<string>.
+
+    auto format(const CRecord& a_record, std::format_context& ctx) const
+    {
+        std::string s = std::visit([](const auto& rec) { return std::format("{}", rec); }, a_record);
+        return formatter<std::string>::format(s, ctx);
+    }
+};
 
 #endif  // ----- #ifndef _CRECORD_INC_  -----
