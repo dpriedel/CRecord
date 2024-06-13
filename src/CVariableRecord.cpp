@@ -69,8 +69,7 @@ void CVariableRecord::CollectFieldNamesFromHeader(std::vector<std::string_view> 
 {
     for (size_t indx = 0; indx < field_count_; ++indx)
     {
-        std::visit([indx, field_names, this](auto& fld) { fld.SetFieldName(std::string{field_names[indx]}); },
-                   fields_[indx]);
+        std::visit([indx, field_names, this](auto& fld) { fld.SetFieldName(field_names[indx]); }, fields_[indx]);
     }
 
     look_for_header_ = false;

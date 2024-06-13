@@ -43,9 +43,12 @@ namespace vws = std::ranges::views;
 //      Method:  CVirtualField
 // Description:  constructor
 //--------------------------------------------------------------------------------------
-CVirtualField::CVirtualField(NameOrNumber reference_type, const std::string& field_sep_char,
-                             const std::vector<size_t>& field_numbers)
-    : field_reference_type_{reference_type}, field_sep_char_{field_sep_char}, real_field_numbers_{field_numbers}
+CVirtualField::CVirtualField(NameOrNumber reference_type, VirtualFieldType virtual_fld_type,
+                             const std::string& field_sep_char, const std::vector<size_t>& field_numbers)
+    : field_reference_type_{reference_type},
+      field_sep_char_{field_sep_char},
+      real_field_numbers_{field_numbers},
+      virt_fld_type_{virtual_fld_type}
 {
     if (field_reference_type_ == NameOrNumber::e_UseNumbers)
     {

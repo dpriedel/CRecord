@@ -111,10 +111,9 @@ struct std::formatter<CVariableRecord> : std::formatter<std::string>
     {
         std::string s;
         std::format_to(std::back_inserter(s),
-                       "VariableRecord\n\tfld names used: {}\tdelimiter: ->{}<-\t# of fields: {}\tlook for header: "
-                       "{}\t buffer len: {}\n",
+                       "VariableRecord\n\tfld names used: {}\tdelimiter: ->{}<-\t# of fields: {}\t buffer len: {}\n",
                        a_record.use_field_names_, a_record.field_delim_char_, a_record.field_count_,
-                       a_record.look_for_header_, a_record.GetBufferLen());
+                       a_record.GetBufferLen());
 
         for (const auto& fld : a_record.GetFields())
         {

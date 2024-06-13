@@ -50,6 +50,15 @@ enum FieldTypes
     e_ArrayField
 };
 
+enum class VirtualFieldType : int32_t
+{
+    e_Synth = 1,
+    e_Combo,
+    e_SkipToDelim,
+    e_Array,
+    e_Unknown = 99
+};
+
 enum class FieldModifiers : int32_t
 {
     e_TrimBoth,
@@ -82,7 +91,7 @@ class BaseField
     // ====================  MUTATORS      =======================================
 
     void SetFieldModifier(FieldModifiers modifier) { field_modifier_ = modifier; }
-    void SetFieldName(const std::string& name) { field_name_ = name; }
+    void SetFieldName(std::string_view name) { field_name_ = name; }
     void SetFieldNumbe(size_t number) { field_number_ = number; }
 
     // ====================  OPERATORS     =======================================
@@ -144,6 +153,39 @@ struct std::formatter<FieldModifiers> : formatter<std::string>
                 break;
             case e_Repeating:
                 mod = "RP";
+                break;
+            case e_Unknown:
+                mod = "Unknown";
+                break;
+        };
+        std::string s;
+        std::format_to(std::back_inserter(s), "{}", mod);
+
+        return formatter<std::string>::format(s, ctx);
+    }
+};
+
+template <>
+struct std::formatter<VirtualFieldType> : formatter<std::string>
+{
+    // parse is inherited from formatter<string>.
+    auto format(const VirtualFieldType& fld_type, std::format_context& ctx) const
+    {
+        std::string mod;
+        switch (fld_type)
+        {
+            using enum VirtualFieldType;
+            case e_Synth:
+                mod = "Synth";
+                break;
+            case e_Combo:
+                mod = "Combo";
+                break;
+            case e_SkipToDelim:
+                mod = "SkipToDelim";
+                break;
+            case e_Array:
+                mod = "Array";
                 break;
             case e_Unknown:
                 mod = "Unknown";

@@ -330,7 +330,7 @@ std::any CRecord_DescVisitor::visitCombo_field(CPP_Record_DescParser::Combo_fiel
     // field_separator_char and field_name_list are collected in
     // their respective visitors.
 
-    CVirtualField new_field{names_or_numbers, combo_fld_sep_char_, list_field_numbers_};
+    CVirtualField new_field{names_or_numbers, VirtualFieldType::e_Combo, combo_fld_sep_char_, list_field_numbers_};
     new_field.SetFieldName(fld_name);
 
     // we can get here for any record type so we'll just use a visitor
@@ -376,7 +376,7 @@ std::any CRecord_DescVisitor::visitSynth_field(CPP_Record_DescParser::Synth_fiel
         throw std::invalid_argument(std::format("Synth field: {} must specify a 'field_separator_char.", fld_name));
     }
 
-    CVirtualField new_field{names_or_numbers, combo_fld_sep_char_, list_field_numbers_};
+    CVirtualField new_field{names_or_numbers, VirtualFieldType::e_Synth, combo_fld_sep_char_, list_field_numbers_};
     new_field.SetFieldName(fld_name);
 
     // we can get here for any record type so we'll just use a visitor

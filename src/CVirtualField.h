@@ -32,6 +32,7 @@
 #ifndef _CVIRTUALFIELD_INC_
 #define _CVIRTUALFIELD_INC_
 
+#include <cstdint>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -46,22 +47,23 @@
 class CVirtualField : public BaseField<CVirtualField>
 {
    public:
-    enum class NameOrNumber
+    enum class NameOrNumber : int32_t
     {
-        e_UseNames,
+        e_UseNames = 1,
         e_UseNumbers,
         e_Unknown
     };
 
     // ====================  LIFECYCLE     =======================================
     CVirtualField() = default;  // constructor
-    CVirtualField(NameOrNumber reference_type, const std::string& field_sep_char,
+    CVirtualField(NameOrNumber reference_type, VirtualFieldType virtual_fld_type, const std::string& field_sep_char,
                   const std::vector<size_t>& field_numbers);
 
     // ====================  ACCESSORS     =======================================
 
     // const std::vector<std::string>& GetFieldNames() const { return real_field_names_; }
     [[nodiscard]] const std::vector<size_t>& GetFieldNumbers() const { return real_field_numbers_; }
+    [[nodiscard]] VirtualFieldType GetVirtualFldType() const { return virt_fld_type_; }
 
     // ====================  MUTATORS      =======================================
 
@@ -80,11 +82,12 @@ class CVirtualField : public BaseField<CVirtualField>
     // ====================  DATA MEMBERS  =======================================
 
     std::string virt_field_data_;
+    std::string field_sep_char_;
     // std::vector<std::string> real_field_names_;
     std::vector<size_t> real_field_numbers_;
 
     NameOrNumber field_reference_type_ = NameOrNumber::e_Unknown;
-    std::string field_sep_char_;
+    VirtualFieldType virt_fld_type_ = VirtualFieldType::e_Unknown;
 
 };  // -----  end of class CVirtualField  -----
 
@@ -97,8 +100,9 @@ struct std::formatter<CVirtualField> : std::formatter<std::string>
     auto format(const CVirtualField& field, std::format_context& ctx) const
     {
         std::string s;
-        std::format_to(std::back_inserter(s), "\tvirtual fld:\tname: {}, # component flds: {}, content: ->{}<-.",
-                       field.GetFieldName(), field.GetFieldNumbers().size(), field.GetFieldData());
+        std::format_to(std::back_inserter(s), "\tvirtual fld ({}):\tname: {}, # component flds: {}, content: ->{}<-.",
+                       field.GetVirtualFldType(), field.GetFieldName(), field.GetFieldNumbers().size(),
+                       field.GetFieldData());
 
         return formatter<std::string>::format(s, ctx);
     }
